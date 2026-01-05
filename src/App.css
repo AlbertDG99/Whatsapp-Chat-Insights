@@ -429,3 +429,16 @@ h1 {
 .empty-state-content p {
   color: var(--text-secondary);
 }
+
+/* Scroll Animation */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  will-change: opacity, visibility;
+}
+
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: none;
+}
