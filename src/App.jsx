@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard';
 import WhatsAppLogo from './components/WhatsAppLogo';
 import { RefreshCw } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
+import PerformanceMonitor from './components/common/PerformanceMonitor';
 
 function App() {
   const [messages, setMessages] = useState(null);
@@ -63,6 +64,9 @@ function App() {
           </>
         )}
       </main>
+
+      {/* Performance Monitor - Solo visible en desarrollo */}
+      {import.meta.env.DEV && <PerformanceMonitor />}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-
 export const parseChat = (text) => {
     const lines = text.split('\n');
     const messages = [];
@@ -6,19 +5,13 @@ export const parseChat = (text) => {
 
     // Regex Patterns
     // iOS: [14/12/20, 15:30:12] Author: Message
-    // Note: Date format might vary by locale, but usually it's DD/MM/YY or MM/DD/YY. We'll assume DD/MM first or try to detect.
-    // We'll look for the structure "[\d/\d/\d, \d:\d:\d]"
     const iosRegex = /^\[(\d{1,2}[./-]\d{1,2}[./-]\d{2,4}),\s(\d{1,2}:\d{2}:\d{2})\]\s(.*?):\s(.*)/;
 
     // Android: 14/12/20, 15:30 - Author: Message
-    // Sometimes: 14/12/20 15:30 - ...
     const androidRegex = /^(\d{1,2}[./-]\d{1,2}[./-]\d{2,4}),?\s(\d{1,2}:\d{2})\s-\s(.*?):\s(.*)/;
 
     for (let line of lines) {
-        // line = line.trim(); // Don't trim blindly, indentation might matter, but usually not for WA.
-        // Actually, WA exports might have BOM or clean lines.
-
-        // Remove invisible chars
+        // Remove invisible chars (BiDi markers)
         line = line.replace(/[\u200e\u200f]/g, "");
 
         let match = line.match(iosRegex) || line.match(androidRegex);
@@ -38,13 +31,9 @@ export const parseChat = (text) => {
                 timestamp: parseDateTime(dateStr, timeStr)
             };
         } else {
-            // Multi-line message or System message
+            // Multi-line message continuation
             if (currentMessage) {
                 currentMessage.content += '\n' + line.trim();
-            } else {
-                // Might be a system message at start, or just garbage.
-                // Check for system message pattern if needed?
-                // "Messages and calls are end-to-end encrypted"
             }
         }
     }
@@ -56,19 +45,16 @@ export const parseChat = (text) => {
 };
 
 const parseDateTime = (dateStr, timeStr) => {
-    // Normalize seperators
+    // Normalize separators
     const d = dateStr.replace(/[-.]/g, '/');
     const parts = d.split('/');
 
-    // Simple heuristic: if parts[0] > 12, it's definitely day. 
-    // If not, we assume DD/MM/YYYY for consistency with most exports globally unless US.
-    // Let's assume DD/MM/YYYY as default for "WhatsappClon" (Spanish).
-
+    // Assume DD/MM/YYYY format (common in Spanish exports)
     let day = parseInt(parts[0], 10);
     let month = parseInt(parts[1], 10) - 1; // JS months are 0-indexed
     let year = parseInt(parts[2], 10);
 
-    if (year < 100) year += 2000; // Handle YY
+    if (year < 100) year += 2000; // Handle YY format
 
     let hours = 0;
     let minutes = 0;

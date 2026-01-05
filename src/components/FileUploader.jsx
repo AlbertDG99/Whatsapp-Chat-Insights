@@ -177,38 +177,6 @@ const FileUploader = ({ onDataLoaded, onLoading }) => {
         {!error && <small className="hint">Acepta archivos .txt y .zip</small>}
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            // Randomly distributed messages over 6 months to ensure quarters and months data
-            const sampleMessages = [
-              { date: '1/1/24', time: '10:00', author: 'Alice', content: 'Hola', timestamp: new Date('2024-01-01T10:00:00') },
-              { date: '1/1/24', time: '10:01', author: 'Bob', content: 'Que tal', timestamp: new Date('2024-01-01T10:01:00') },
-              { date: '1/2/24', time: '10:05', author: 'Alice', content: 'Bien y tu?', timestamp: new Date('2024-02-01T10:05:00') },
-              { date: '1/3/24', time: '12:00', author: 'Bob', content: 'Todo bien jaja', timestamp: new Date('2024-03-01T12:00:00') },
-              { date: '1/4/24', time: '13:00', author: 'Alice', content: 'Me alegro', timestamp: new Date('2024-04-01T13:00:00') },
-              { date: '1/5/24', time: '09:00', author: 'Bob', content: 'imagen omitida', timestamp: new Date('2024-05-02T09:00:00') },
-              { date: '1/6/24', time: '09:05', author: 'Alice', content: 'Jaja lol', timestamp: new Date('2024-06-02T09:05:00') },
-            ];
-            if (onDataLoaded) onDataLoaded(sampleMessages, "Chat de Ejemplo (Debug)");
-          }}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#4a4a4a',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            fontSize: '0.9rem'
-          }}
-        >
-          🐛 Cargar Ejemplo (Debug)
-        </button>
-      </div>
-
       <div className="how-to-guide">
         <h3>Cómo exportar tu chat</h3>
         <div className="steps-grid">
