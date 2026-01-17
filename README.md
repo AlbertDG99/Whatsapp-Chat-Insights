@@ -2,6 +2,19 @@
 
 Securely visualize and analyze your WhatsApp chat history directly in your browser.
 
+## 🧩 Visual Components & Graphs available
+
+### Charts (Chart.js)
+- **Vertical Bar Chart**: Used for "Messages Sent", "Average Length", "Total Words".
+- **Horizontal Bar Chart**: Used for "Social Dynamics" (Most Participative, Link Sharer, etc.).
+- **Line Chart**: Used for "Activity Over Time" and "Seasonality".
+- **Doughnut Chart**: Used for "Most Used Emojis".
+- **Pie Chart**: Used for "Weekend vs Weekdays".
+
+### Special Widgets
+- **KPI Grid**: Displays key metrics (Total Messages, Active Days, Participants) with big counters.
+- **Historic Streak Card**: A specialized trophy card detailing the longest continuous message streak with timestamps and referencing messages.
+
 ## 🚀 Features
 
 ### 📊 Primary KPIs

@@ -23,11 +23,14 @@ export const parseChat = (text) => {
 
             const [_, dateStr, timeStr, author, content] = match;
 
+            const isMultimedia = /<Multimedia omitido>|<Media omitted>|<image omitted>|<audio omitido>|<sticker omitido>|sticker omitido|audio omitido|imagen omitida|video omitido/i.test(content);
+
             currentMessage = {
                 date: dateStr,
                 time: timeStr,
                 author: author,
                 content: content.trim(),
+                isMultimedia: isMultimedia,
                 timestamp: parseDateTime(dateStr, timeStr)
             };
         } else {

@@ -23,6 +23,7 @@ import TemporalAnalysis from './dashboard/TemporalAnalysis';
 import ContentAnalysis from './dashboard/ContentAnalysis';
 import SocialAnalysis from './dashboard/SocialAnalysis';
 import MultiSelect from './common/MultiSelect';
+import SingleUserStats from './dashboard/SingleUserStats';
 
 ChartJS.register(
     CategoryScale,
@@ -138,7 +139,7 @@ const Dashboard = ({ messages, fileName }) => {
             const wordCounts = {};
             const monthlyCounts = Array(12).fill(0);
 
-            // Historic Streak Logic - Extended with messages and timestamps
+            // Historic Streak Logic
             let historicStreak = {
                 author: null,
                 count: 0,
@@ -169,9 +170,28 @@ const Dashboard = ({ messages, fileName }) => {
             let lastMsgTime = null;
 
             filteredMessages.forEach(msg => {
-                // Author
                 const author = msg.author || "Unknown";
                 const content = msg.content || "";
+
+                // 1. Media (ALWAYS COUNT)
+                if (msg.isMultimedia) {
+                    mediaCounts[author] = (mediaCounts[author] || 0) + 1;
+                    // Skip text analysis for multimedia, but keep author/date stats?
+                    // The user said: "eliminate them from all graphics that are NOT multimedia".
+                    // However, we still want to count them in "authorCounts" (Total Messages) usually?
+                    // User said: "La estadistica de chapa historica es simplemente muchos multimedia juntos. Asi que esos eliminemoslos de todas las estadisticas o graficas que no sean de multimedia."
+
+                    // Streak logic definitely falls under "Chapa Histórica". 
+                    // So we should NOT process streak for multimedia if user considers it "spam".
+                    // But we likely want to count specific Date/Time activity still? 
+                    // Let's assume we skip EVERYTHING except 'mediaCounts' and maybe basic author activity count for timeline?
+                    // Actually, if I skip the streak logic here, it breaks the streak.
+                    // Let's treat multimedia as NO-OP for streaks (neither breaks nor adds? or explicitly breaks?)
+                    // The user says "eliminate them". So maybe just ignore completely for streaks.
+                    return;
+                }
+
+                // If code reaches here, it is NOT multimedia.
 
                 // Streak Calculation
                 if (author === currentStreak.author) {
@@ -199,47 +219,29 @@ const Dashboard = ({ messages, fileName }) => {
                     const d = msg.timestamp;
                     const h = d.getHours();
 
-                    // Group by Quarter: YYYY-Q#
                     const year = d.getFullYear();
                     const quarter = Math.floor(d.getMonth() / 3) + 1;
                     const key = `${year}-Q${quarter}`;
                     dateCounts[key] = (dateCounts[key] || 0) + 1;
 
                     hourCounts[h]++;
-                    // Day of week: Convert to Mon=0, Sun=6 format
                     const dayIndex = (d.getDay() + 6) % 7;
                     dayOfWeekCounts[dayIndex]++;
 
-                    // 5. Time Period - REMOVED
-
-                    // 10. Seasonality
                     monthlyCounts[d.getMonth()]++;
 
-                    // 6. Weekend vs Weekday
                     const day = d.getDay();
                     if (day === 0 || day === 6) weekendVsWeekday['Finde']++;
                     else weekendVsWeekday['Semana']++;
                 }
 
-                // 1. Media
-                if (content.includes("<Multimedia omitido>") || content.includes("image omitted") || content.includes("video omitted") || content.includes("sticker omitted")) {
-                    mediaCounts[author] = (mediaCounts[author] || 0) + 1;
-                }
-
-                // 2. Laughter - Algorithmic detection
-                // Logic: strict "all together", collapse duplicates, check pattern of J/H + Vowels, count > 2 J/H
+                // 2. Laughter
                 const words = content.toLowerCase().split(/[\s,.;!?]+/);
                 const isLaugh = words.some(word => {
-                    if (['lol', 'lmao', 'xd'].includes(word)) return true; // Keep classic acronyms
-
-                    // 1. Collapse duplicates (e.g., "jajajjaja" -> "jajajaja", "haaaa" -> "ha")
+                    if (['lol', 'lmao', 'xd'].includes(word)) return true;
                     const cleanWord = word.replace(/(.)\1+/g, '$1');
-
-                    // 2. Must contain ONLY j, h, or vowels to be a candidate for this logic
                     if (/^[jhaeiou]+$/.test(cleanWord)) {
-                        // 3. Count J's or H's
                         const jhCount = (cleanWord.match(/[jh]/g) || []).length;
-                        // 4. Threshold: 2 or more (allows "jaja", "haha", but might capture "hijo")
                         return jhCount >= 2;
                     }
                     return false;
@@ -249,7 +251,7 @@ const Dashboard = ({ messages, fileName }) => {
                     laughterCounts[author] = (laughterCounts[author] || 0) + 1;
                 }
 
-                // 3. Conversation Starters (> 6h gap)
+                // 3. Conversation Starters
                 if (lastMsgTime) {
                     const diffMs = msg.timestamp - lastMsgTime;
                     const diffHours = diffMs / (1000 * 60 * 60);
@@ -259,7 +261,7 @@ const Dashboard = ({ messages, fileName }) => {
                 }
                 lastMsgTime = msg.timestamp;
 
-                // 4. Msg Length & 9. Words
+                // 4. Msg Length & Words
                 msgLengthSum[author] = (msgLengthSum[author] || 0) + content.length;
                 wordCounts[author] = (wordCounts[author] || 0) + content.split(/\s+/).length;
 
@@ -286,7 +288,7 @@ const Dashboard = ({ messages, fileName }) => {
             const sortedAuthors = getTop(authorCounts);
             const sortedEmojis = getTop(emojiCounts, 5);
 
-            // Timeline (Quarters)
+            // Timeline
             const timelineKeys = Object.keys(dateCounts).sort();
             const timelineLabels = timelineKeys.map(k => {
                 const [y, q] = k.split('-');
@@ -400,6 +402,8 @@ const Dashboard = ({ messages, fileName }) => {
         }
     }, [filteredMessages]);
 
+    // Detect Single User Mode
+    const isSingleUser = selectedParticipants.length === 1;
 
     return (
         <div className="dashboard">
@@ -450,17 +454,23 @@ const Dashboard = ({ messages, fileName }) => {
                 </div>
             ) : (
                 <>
-                    {/* 1. Summary KPIs */}
-                    <KPIGrid stats={stats} />
+                    {isSingleUser ? (
+                        <SingleUserStats messages={filteredMessages} author={selectedParticipants[0]} />
+                    ) : (
+                        <>
+                            {/* 1. Summary KPIs */}
+                            <KPIGrid stats={stats} />
 
-                    {/* 2. Temporal Analysis */}
-                    <TemporalAnalysis stats={stats} chartOptions={chartOptions} />
+                            {/* 2. Temporal Analysis */}
+                            <TemporalAnalysis stats={stats} chartOptions={chartOptions} />
 
-                    {/* 3. Content Analysis */}
-                    <ContentAnalysis stats={stats} chartOptions={chartOptions} />
+                            {/* 3. Content Analysis */}
+                            <ContentAnalysis stats={stats} chartOptions={chartOptions} />
 
-                    {/* 4. Social Dynamics */}
-                    <SocialAnalysis stats={stats} chartOptions={chartOptions} />
+                            {/* 4. Social Dynamics */}
+                            <SocialAnalysis stats={stats} chartOptions={chartOptions} />
+                        </>
+                    )}
                 </>
             )}
         </div>

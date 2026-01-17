@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import FileUploader from './components/FileUploader';
+import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
 import WhatsAppLogo from './components/WhatsAppLogo';
 import { RefreshCw } from 'lucide-react';
@@ -35,13 +36,7 @@ function App() {
           }
         }}
       />
-      <header>
-        <div className="logo-section">
-          <WhatsAppLogo size={52} color="#25D366" />
-          <h1>Whatsapp Chat Insights</h1>
-        </div>
-        <p className="subtitle">Visualiza tu historial de chat de WhatsApp de forma segura en tu navegador</p>
-      </header>
+
 
       <main>
         {loading && (
@@ -52,14 +47,18 @@ function App() {
         )}
 
         {!messages && !loading && (
-          <FileUploader onDataLoaded={handleDataLoaded} onLoading={setLoading} />
+          <LandingPage onDataLoaded={handleDataLoaded} onLoading={setLoading} />
         )}
 
         {messages && !loading && (
           <>
-            <div className="toolbar">
+            <header className="dashboard-header">
+              <div className="logo-section small">
+                <WhatsAppLogo size={32} color="#25D366" />
+                <h1>Whatsapp Chat Insights</h1>
+              </div>
               <button onClick={handleReset} className="btn-secondary">Analizar otro archivo</button>
-            </div>
+            </header>
             <Dashboard messages={messages} fileName={fileName} />
           </>
         )}
