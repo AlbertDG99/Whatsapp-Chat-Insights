@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 
-const FadeInSection = ({ children }) => {
+const FadeInSection = ({ children, className = '', delay = '0s', ...props }) => {
     const [isVisible, setIsVisible] = useState(false);
     const domRef = useRef();
 
@@ -22,9 +22,10 @@ const FadeInSection = ({ children }) => {
 
     return (
         <div
-            className={`fade-in-section ${isVisible ? 'is-visible' : ''}`}
+            className={`fade-in-section ${isVisible ? 'is-visible' : ''} ${className}`}
             ref={domRef}
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: '100%', width: '100%', transitionDelay: delay }}
+            {...props}
         >
             {children}
         </div>

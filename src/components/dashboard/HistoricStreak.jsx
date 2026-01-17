@@ -1,9 +1,9 @@
 import FadeInSection from '../common/FadeInSection';
-import { Trophy, Clock, MessageSquare } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 
 /**
  * HistoricStreak Component
- * Displays the historic streak with enhanced decoration and detailed information
+ * Displays the historic streak with enhanced decoration and detailed information.
  */
 const HistoricStreak = ({ streak }) => {
     if (!streak || !streak.author) return null;
@@ -19,56 +19,42 @@ const HistoricStreak = ({ streak }) => {
         });
     };
 
-    const truncateMessage = (msg, maxLength = 50) => {
+    const truncateMessage = (msg, maxLength = 20) => {
         if (!msg) return '-';
-        if (msg.length <= maxLength) return msg;
-        return msg.substring(0, maxLength) + '...';
+        return msg.length <= maxLength ? msg : `${msg.substring(0, maxLength)}...`;
     };
 
     return (
-        <FadeInSection>
-            <div className="card historic-streak-card">
+        <FadeInSection className="col-span-1 row-span-2">
+            <div className="card historic-streak-card card-tall">
                 <div className="streak-header">
                     <Trophy size={28} className="streak-icon" />
-                    <h3>🏆 Chapa Histórica</h3>
+                    <h3>Chapa Histórica</h3>
                 </div>
 
                 <div className="streak-main">
                     <div className="streak-author">{streak.author}</div>
                     <div className="streak-count">
                         <span className="count-number">{streak.count}</span>
-                        <span className="count-label">mensajes seguidos</span>
+                        <div className="count-label">mensajes</div>
                     </div>
                 </div>
 
                 <div className="streak-details">
                     <div className="streak-detail-row">
-                        <Clock size={14} />
                         <span className="detail-label">Inicio:</span>
                         <span className="detail-value">{formatDate(streak.startTimestamp)}</span>
                     </div>
                     <div className="streak-detail-row">
-                        <Clock size={14} />
                         <span className="detail-label">Fin:</span>
                         <span className="detail-value">{formatDate(streak.endTimestamp)}</span>
                     </div>
                 </div>
 
-                <div className="streak-messages">
-                    <div className="streak-message-item">
-                        <MessageSquare size={14} />
-                        <span className="message-label">Primer mensaje:</span>
-                        <span className="message-content" title={streak.startMessage}>
-                            "{truncateMessage(streak.startMessage)}"
-                        </span>
-                    </div>
-                    <div className="streak-message-item">
-                        <MessageSquare size={14} />
-                        <span className="message-label">Último mensaje:</span>
-                        <span className="message-content" title={streak.endMessage}>
-                            "{truncateMessage(streak.endMessage)}"
-                        </span>
-                    </div>
+                <div className="streak-messages" style={{ marginTop: 'auto', fontSize: '0.8rem', opacity: 0.8 }}>
+                    <div style={{ fontStyle: 'italic' }}>"{truncateMessage(streak.startMessage)}"</div>
+                    <div style={{ textAlign: 'center' }}>⬇</div>
+                    <div style={{ fontStyle: 'italic' }}>"{truncateMessage(streak.endMessage)}"</div>
                 </div>
             </div>
         </FadeInSection>

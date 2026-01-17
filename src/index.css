@@ -81,6 +81,9 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: radial-gradient(circle at 50% 0%, rgba(37, 211, 102, 0.15) 0%, transparent 75%);
+  background-attachment: fixed;
+  background-color: var(--color-bg-base);
 }
 
 /* Typography Defaults */
