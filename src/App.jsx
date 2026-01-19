@@ -1,12 +1,11 @@
-
 import React, { useState } from 'react';
-import './App.css';
-import FileUploader from './components/FileUploader';
+
+import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
-import WhatsAppLogo from './components/WhatsAppLogo';
 import { RefreshCw } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 import PerformanceMonitor from './components/common/PerformanceMonitor';
+import { generateMockMessages } from './utils/mockData';
 
 function App() {
   const [messages, setMessages] = useState(null);
@@ -19,9 +18,12 @@ function App() {
     setLoading(false);
   };
 
-  const handleReset = () => {
-    setMessages(null);
-    setFileName('');
+  const handleLoadDemo = () => {
+    setLoading(true);
+    setTimeout(() => {
+      const mockData = generateMockMessages();
+      handleDataLoaded(mockData, 'Chat de Prueba (Demo)');
+    }, 800);
   };
 
   return (
@@ -35,13 +37,6 @@ function App() {
           }
         }}
       />
-      <header>
-        <div className="logo-section">
-          <WhatsAppLogo size={52} color="#25D366" />
-          <h1>Whatsapp Chat Insights</h1>
-        </div>
-        <p className="subtitle">Visualiza tu historial de chat de WhatsApp de forma segura en tu navegador</p>
-      </header>
 
       <main>
         {loading && (
@@ -52,20 +47,41 @@ function App() {
         )}
 
         {!messages && !loading && (
-          <FileUploader onDataLoaded={handleDataLoaded} onLoading={setLoading} />
+          <>
+            <LandingPage onDataLoaded={handleDataLoaded} onLoading={setLoading} />
+            {import.meta.env.DEV && (
+              <button
+                onClick={handleLoadDemo}
+                style={{
+                  position: 'fixed',
+                  bottom: '2rem',
+                  right: '2rem',
+                  zIndex: 9999,
+                  padding: '0.8rem 1.5rem',
+                  background: '#00a884',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '1rem'
+                }}
+              >
+                🧪 Demo Data
+              </button>
+            )}
+          </>
         )}
 
         {messages && !loading && (
-          <>
-            <div className="toolbar">
-              <button onClick={handleReset} className="btn-secondary">Analizar otro archivo</button>
-            </div>
-            <Dashboard messages={messages} fileName={fileName} />
-          </>
+          <Dashboard messages={messages} fileName={fileName} />
         )}
       </main>
 
-      {/* Performance Monitor - Solo visible en desarrollo */}
       {import.meta.env.DEV && <PerformanceMonitor />}
     </div>
   );

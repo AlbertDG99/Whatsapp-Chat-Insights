@@ -1,76 +1,79 @@
 # WhatsApp Chat Insights
 
-Securely visualize and analyze your WhatsApp chat history directly in your browser.
+Securely visualize and analyze your WhatsApp chat history directly in your browser. Experience a premium, high-performance dashboard with deep insights into your digital conversations.
+
+## 🧩 Visual Components & Graphs available
+
+### Charts (Chart.js)
+- **Line Chart**: Used for "Activity Over Time" (Quarterly) and "Seasonality".
+- **Bar Chart**: Used for Hourly and Weekly activity distributions.
+- **Pie & Doughnut Charts**: Used for "Weekend vs Weekdays" and "Most Used Emojis".
+
+### Premium Dashboard Widgets
+- **Unified Card System**: All analysis modules are presented in standardized 430x430px cards for a clean, grid-based layout.
+- **2x3 Stat Groups**: Smaller metrics are intelligently grouped in 2-column, 3-row grids that fill first vertically.
+- **Historic Streak Card**: A specialized trophy card detailing the longest continuous message streak.
+- **Single User View**: Deep dive into individual participant stats with a dedicated, interleaved layout of charts and KPIs.
 
 ## 🚀 Features
 
+### 👤 Single User Deep Dive (New)
+- Dedicated analysis view when a single participant is selected.
+- Interleaved layout of charts and groups of 6 stats.
+- Comparative analysis against the group's timeline.
+
 ### 📊 Primary KPIs
-- **Total Messages**: A counter of all messages within the selected range.
-- **Active Days**: Number of days with recorded activity.
-- **Participants**: Total number of people involved in the conversation.
+- **Total Messages**: Global and per-user message counters.
+- **Active Days**: Real calendar days with activity (Set-based precision).
+- **Participants**: Total number of unique authors.
 
 ### 📈 Temporal Analysis
-- **Activity Over Time**: Line chart showing activity grouped by quarters.
-- **Activity by Hour of Day**: Hourly distribution of messages.
-- **Activity by Day of Week**: Weekly distribution (Monday to Sunday).
-- **Weekend vs. Weekdays**: Comparison shown in a circular chart.
-- **Seasonality (Monthly)**: Monthly activity trends.
-
-### 📝 Content Analysis
-- **Media Sent**: Count of multimedia files per person.
-- **Average Length**: Average number of characters per message.
-- **Total Words**: Total word count per participant.
-- **Most Used Emojis**: Top 5 emojis visualized in a doughnut chart.
+- **Activity Over Time**: Global trends grouped by quarters.
+- **Hourly & Weekly distribution**: Heatmaps of when you talk the most.
+- **Seasonality**: Monthly patterns to see your chat pulse throughout the year.
 
 ### 🎯 Social Dynamics & Fun Facts
-- **🏆 Historic Streak**: Record for the most consecutive messages by a single person, including:
-  - Author's name.
-  - Number of consecutive messages.
-  - Start and end date/time.
-  - The first and last messages of the streak.
-- **Most Participative**: Ranking of messages per person.
-- **Conversation Starters**: Who initiates conversations (>6h gap).
-- **Laughter Meter**: Counter for laughs (jaja, haha, lol, etc.).
-- **The Link Sharer**: Who shares the most links.
-- **The Questioner**: Who asks the most questions.
+- **🏆 Historic Streak**: Who took over the chat with the most consecutive messages.
+- **Conversation Starters**: Who breaks the silence after a >4h gap.
+- **Laughter Meter**: Specialized regex for detecting laughter (haha, lol, xd).
+- **The Link Sharer & Questioner**: Dedicated counters for links and questions.
 
-### 🔧 Filters
-- **Multi-participant Selector**: Filter by one or multiple people.
-- **Date Range**: Select specific start and end dates.
+### 🔧 Filters & UI
+- **Smart Participant Selector**: Search and filter by one or multiple authors with "Select All/Clear" actions.
+- **Responsive Design**: Premium mobile experience with adapted grids and container-query based font scaling.
+- **Date Range**: Precise temporal filtering.
 
 ## 🛠️ Technologies
 
-- **React 19** + **Vite 7**
-- **Chart.js** with `react-chartjs-2`
-- **JSZip** for `.zip` file handling
-- **Lucide React** for iconography
-- **React Hot Toast** for notifications
-- **React Dropzone** for file uploads
+- **React 19** + **Vite 6**
+- **Chart.js 4** + **react-chartjs-2**
+- **Lucide React**: Modern iconography.
+- **CSS3 Modern Features**: Container Queries for fluid text, Flexbox/Grid, and Backdrop Filters.
+- **JSZip**: Ultra-fast `.zip` file processing.
 
 ## 📁 Project Structure
 
 ```
 src/
-├── App.jsx                    # Main entry component
-├── App.css                    # Global styles
-├── index.css                  # Base CSS reset
-├── main.jsx                   # React entry point
+├── App.jsx                    # Main entry & Landing Page logic
+├── index.css                  # Unified design system & global styles
 ├── components/
-│   ├── Dashboard.jsx          # Main dashboard stats logic
-│   ├── FileUploader.jsx       # File upload with export guide
-│   ├── WhatsAppLogo.jsx       # WhatsApp SVG logo
+│   ├── Dashboard.jsx          # Dashboard layout & routing logic
+│   ├── FileUploader.jsx       # Landing page uploader & export guide
 │   ├── common/
-│   │   ├── FadeInSection.jsx  # Intersection Observer fade-in animation
-│   │   ├── MultiSelect.jsx    # Multi-participant filter component
-│   │   └── PerformanceMonitor.jsx  # FPS/RAM monitor (Dev only)
+│   │   ├── FadeInSection.jsx  # Intersection-based scroll animations
+│   │   └── MultiSelect.jsx    # Advanced participant filter
 │   └── dashboard/
-│       ├── KPIGrid.jsx        # Main KPI cards
-│       ├── TemporalAnalysis.jsx    # Temporal charts
-│       ├── ContentAnalysis.jsx     # Content-based charts
-│       ├── SocialAnalysis.jsx      # Social dynamics section
-│       └── HistoricStreak.jsx      # Decorated Historic Streak card
+│       ├── KPIGrid.jsx        # Global KPI overview
+│       ├── SingleUserStats.jsx # Specialized single-person dashboard
+│       ├── TemporalAnalysis.jsx # Time-based charts
+│       ├── ContentAnalysis.jsx  # Content/Emoji analysis
+│       ├── SocialAnalysis.jsx   # Dynamics & Streak widgets
+│       ├── HistoricStreak.jsx   # The "Streak Trophy" component
+│       └── MiniStatCard.jsx     # Reusable adaptive KPI card
 └── utils/
-    └── parser.js              # WhatsApp chat export parser
+    ├── parser.js              # Advanced WhatsApp regex parser
+    └── statsCalculator.js     # Heavy-lifting stats computation
 ```
 
 ## 🚀 Installation & Development
@@ -84,9 +87,6 @@ npm run dev
 
 # Production build
 npm run build
-
-# Run Linting
-npm run lint
 ```
 
 ## 📱 How to Export Your Chat
@@ -98,16 +98,7 @@ npm run lint
 
 ## 🔒 Privacy
 
-All data is processed **locally in your browser**. No chat data ever leaves your device.
-
-## 🐛 Development Mode
-
-In development mode (`npm run dev`), a **Performance Monitor** is displayed in the bottom-left corner showing:
-- Real-time FPS
-- Memory usage (Chrome only)
-- DOM element count
-
-This monitor is **not included in the production build**.
+All data is processed **locally in your browser**. No chat data ever leaves your device. We don't use servers for analysis; your privacy is guaranteed by design.
 
 ## 📄 License
 

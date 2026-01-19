@@ -1,9 +1,9 @@
 import FadeInSection from '../common/FadeInSection';
-import { Trophy, Clock, MessageSquare } from 'lucide-react';
+import { Trophy, Clock, MessageCircle } from 'lucide-react';
 
 /**
  * HistoricStreak Component
- * Displays the historic streak with enhanced decoration and detailed information
+ * Displays the historic streak with enhanced decoration and detailed information.
  */
 const HistoricStreak = ({ streak }) => {
     if (!streak || !streak.author) return null;
@@ -19,55 +19,49 @@ const HistoricStreak = ({ streak }) => {
         });
     };
 
-    const truncateMessage = (msg, maxLength = 50) => {
+    const truncateMessage = (msg, maxLength = 25) => {
         if (!msg) return '-';
-        if (msg.length <= maxLength) return msg;
-        return msg.substring(0, maxLength) + '...';
+        return msg.length <= maxLength ? msg : `${msg.substring(0, maxLength)}...`;
     };
 
     return (
-        <FadeInSection>
+        <FadeInSection className="col-span-1">
             <div className="card historic-streak-card">
                 <div className="streak-header">
-                    <Trophy size={28} className="streak-icon" />
-                    <h3>🏆 Chapa Histórica</h3>
+                    <Trophy size={24} className="streak-icon" />
+                    <h3>Chapa Histórica</h3>
                 </div>
 
-                <div className="streak-main">
+                <div className="streak-main-compact">
                     <div className="streak-author">{streak.author}</div>
-                    <div className="streak-count">
-                        <span className="count-number">{streak.count}</span>
-                        <span className="count-label">mensajes seguidos</span>
+                    <div className="streak-count-inline">
+                        <span className="count-number-compact">{streak.count} </span>
+                        <span className="count-label-compact">mensajes seguidos</span>
                     </div>
                 </div>
 
-                <div className="streak-details">
-                    <div className="streak-detail-row">
+                <div className="streak-timeline">
+                    <div className="timeline-point start">
                         <Clock size={14} />
-                        <span className="detail-label">Inicio:</span>
-                        <span className="detail-value">{formatDate(streak.startTimestamp)}</span>
+                        <span className="timeline-date">{formatDate(streak.startTimestamp)}</span>
                     </div>
-                    <div className="streak-detail-row">
+                    <div className="timeline-connector"></div>
+                    <div className="timeline-point end">
                         <Clock size={14} />
-                        <span className="detail-label">Fin:</span>
-                        <span className="detail-value">{formatDate(streak.endTimestamp)}</span>
+                        <span className="timeline-date">{formatDate(streak.endTimestamp)}</span>
                     </div>
                 </div>
 
-                <div className="streak-messages">
-                    <div className="streak-message-item">
-                        <MessageSquare size={14} />
-                        <span className="message-label">Primer mensaje:</span>
-                        <span className="message-content" title={streak.startMessage}>
-                            "{truncateMessage(streak.startMessage)}"
-                        </span>
+                <div className="streak-quotes">
+                    <div className="quote-item first">
+                        <MessageCircle size={12} />
+                        <span className="quote-label">Primer mensaje:</span>
+                        <span className="quote-text">"{truncateMessage(streak.startMessage)}"</span>
                     </div>
-                    <div className="streak-message-item">
-                        <MessageSquare size={14} />
-                        <span className="message-label">Último mensaje:</span>
-                        <span className="message-content" title={streak.endMessage}>
-                            "{truncateMessage(streak.endMessage)}"
-                        </span>
+                    <div className="quote-item last">
+                        <MessageCircle size={12} />
+                        <span className="quote-label">Último mensaje:</span>
+                        <span className="quote-text">"{truncateMessage(streak.endMessage)}"</span>
                     </div>
                 </div>
             </div>

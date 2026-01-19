@@ -1,29 +1,33 @@
-
 import React from 'react';
+import { MessageCircle, Calendar, Users } from 'lucide-react';
+import MiniStatCard from './MiniStatCard';
 import FadeInSection from '../common/FadeInSection';
 
 const KPIGrid = ({ stats }) => {
     if (!stats) return null;
 
     return (
-        <div className="dashboard-grid kpi-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', marginBottom: '2rem' }}>
-            <FadeInSection>
-                <div className="card">
-                    <h3>Mensajes Totales</h3>
-                    <div className="kpi-value">{stats.totalMessages.toLocaleString()}</div>
-                </div>
+        <div className="stats-row">
+            <FadeInSection delay="0s">
+                <MiniStatCard
+                    icon={MessageCircle}
+                    title="Mensajes"
+                    value={stats.totalMessages.toLocaleString()}
+                />
             </FadeInSection>
-            <FadeInSection>
-                <div className="card">
-                    <h3>Días Activos</h3>
-                    <div className="kpi-value">{stats.daysActive.toLocaleString()}</div>
-                </div>
+            <FadeInSection delay="0.1s">
+                <MiniStatCard
+                    icon={Calendar}
+                    title="Días Activos"
+                    value={stats.daysActive.toLocaleString()}
+                />
             </FadeInSection>
-            <FadeInSection>
-                <div className="card">
-                    <h3>Participantes</h3>
-                    <div className="kpi-value">{stats.uniqueAuthors}</div>
-                </div>
+            <FadeInSection delay="0.2s">
+                <MiniStatCard
+                    icon={Users}
+                    title="Participantes"
+                    value={stats.uniqueAuthors}
+                />
             </FadeInSection>
         </div>
     );
