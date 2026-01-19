@@ -81,9 +81,9 @@ export const calculateStats = (messages) => {
         endMessage: null
     };
     let currentStreak = { ...historicStreak };
-
     let lastMsgTime = null;
     let validMessageCount = 0;
+    const uniqueDays = new Set();
 
     messages.forEach(msg => {
         const author = msg.author || 'Unknown';
@@ -95,6 +95,10 @@ export const calculateStats = (messages) => {
         // Count multimedia separately and skip further processing
         if (msg.isMultimedia) {
             mediaCounts[author] = (mediaCounts[author] || 0) + 1;
+            // Still count as active day if it has a timestamp
+            if (msg.timestamp) {
+                uniqueDays.add(msg.timestamp.toISOString().split('T')[0]);
+            }
             return;
         }
 
@@ -129,7 +133,10 @@ export const calculateStats = (messages) => {
             const dayOfWeek = d.getDay();
             const month = d.getMonth();
 
-            // Quarterly timeline
+            // Track unique calendar day
+            uniqueDays.add(d.toISOString().split('T')[0]);
+
+            // Quarterly timeline (data for chart)
             const year = d.getFullYear();
             const quarter = Math.floor(month / 3) + 1;
             const key = `${year}-Q${quarter}`;
@@ -206,7 +213,7 @@ export const calculateStats = (messages) => {
     return {
         totalMessages: validMessageCount,
         uniqueAuthors: Object.keys(authorCounts).length,
-        daysActive: Object.keys(dateCounts).length,
+        daysActive: uniqueDays.size,
         historicStreak,
         authorChartData: createBarData(authorCounts, sortedAuthors, 'Mensajes', CHART_COLORS.primary),
         timelineChartData: {

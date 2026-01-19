@@ -10,37 +10,37 @@ const ContentAnalysis = ({ stats, chartOptions }) => {
         <div className="dashboard-section">
             <h2 className="section-title">Análisis de Contenido</h2>
             <div className="dashboard-grid">
-                <FadeInSection>
+                <FadeInSection delay="0s">
                     <div className="card">
                         <h3>Multimedia Enviado</h3>
-                        <div style={{ height: '300px' }}>
+                        <div className="card-chart-container">
                             <Bar data={stats.mediaChartData} options={{ ...chartOptions, indexAxis: 'y' }} />
                         </div>
                     </div>
                 </FadeInSection>
 
-                <FadeInSection>
+                <FadeInSection delay="0.1s">
                     <div className="card">
                         <h3>Promedio de Longitud (Caracteres)</h3>
-                        <div style={{ height: '300px' }}>
+                        <div className="card-chart-container">
                             <Bar data={stats.avgLengthChartData} options={chartOptions} />
                         </div>
                     </div>
                 </FadeInSection>
 
-                <FadeInSection>
+                <FadeInSection delay="0.2s">
                     <div className="card">
                         <h3>Total Palabras</h3>
-                        <div style={{ height: '300px' }}>
+                        <div className="card-chart-container">
                             <Bar data={stats.wordChartData} options={{ ...chartOptions, indexAxis: 'y' }} />
                         </div>
                     </div>
                 </FadeInSection>
 
-                <FadeInSection>
+                <FadeInSection delay="0.3s">
                     <div className="card">
                         <h3>Emojis Más Usados</h3>
-                        <div style={{ height: '300px', display: 'flex', justifyContent: 'center' }}>
+                        <div className="card-chart-container centered">
                             <Doughnut data={stats.emojiChartData} options={{
                                 maintainAspectRatio: false,
                                 plugins: { legend: { position: 'right', labels: { color: '#e9edef' } } }

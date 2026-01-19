@@ -17,7 +17,7 @@ const SocialAnalysis = ({ stats, chartOptions }) => {
                 <FadeInSection>
                     <div className="card">
                         <h3>Más Participativos</h3>
-                        <div style={{ height: '300px' }}>
+                        <div className="card-chart-container">
                             <Bar data={stats.authorChartData} options={{ ...chartOptions, indexAxis: 'y' }} />
                         </div>
                     </div>
@@ -26,7 +26,7 @@ const SocialAnalysis = ({ stats, chartOptions }) => {
                 <FadeInSection>
                     <div className="card">
                         <h3>Iniciadores de Conversación</h3>
-                        <div style={{ height: '300px' }}>
+                        <div className="card-chart-container">
                             <Bar data={stats.starterChartData} options={{ ...chartOptions, indexAxis: 'y' }} />
                         </div>
                     </div>
@@ -35,7 +35,7 @@ const SocialAnalysis = ({ stats, chartOptions }) => {
                 <FadeInSection>
                     <div className="card">
                         <h3>Medidor de Risas</h3>
-                        <div style={{ height: '300px' }}>
+                        <div className="card-chart-container">
                             <Bar data={stats.laughterChartData} options={{ ...chartOptions, indexAxis: 'y' }} />
                         </div>
                     </div>
@@ -44,7 +44,7 @@ const SocialAnalysis = ({ stats, chartOptions }) => {
                 <FadeInSection>
                     <div className="card">
                         <h3>El de los Links</h3>
-                        <div style={{ height: '300px' }}>
+                        <div className="card-chart-container">
                             <Bar data={stats.linkChartData} options={{ ...chartOptions, indexAxis: 'y' }} />
                         </div>
                     </div>
@@ -53,7 +53,7 @@ const SocialAnalysis = ({ stats, chartOptions }) => {
                 <FadeInSection>
                     <div className="card">
                         <h3>El Preguntón (?)</h3>
-                        <div style={{ height: '300px' }}>
+                        <div className="card-chart-container">
                             <Bar data={stats.questionChartData} options={{ ...chartOptions, indexAxis: 'y' }} />
                         </div>
                     </div>

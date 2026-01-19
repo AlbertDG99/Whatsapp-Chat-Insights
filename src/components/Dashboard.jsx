@@ -111,7 +111,7 @@ const Dashboard = ({ messages, fileName }) => {
             <div className="dashboard-header-row">
                 <div className="title-group">
                     <h2>{chatTitle}</h2>
-                    <p className="subtitle" style={{ margin: 0 }}>
+                    <p className="subtitle subtitle-no-margin">
                         {stats ? `${stats.totalMessages.toLocaleString()} mensajes` : ''}
                         {dateStart && dateEnd ? ` • ${new Date(dateStart).toLocaleDateString()} - ${new Date(dateEnd).toLocaleDateString()}` : ''}
                     </p>
@@ -144,12 +144,11 @@ const Dashboard = ({ messages, fileName }) => {
                             className="date-input"
                         />
                     </div>
-                    <div className="date-input-group" style={{ justifyContent: 'flex-end' }}>
+                    <div className="date-input-group justify-end">
                         <label>&nbsp;</label>
                         <button
                             onClick={() => window.location.reload()}
-                            className="btn-secondary"
-                            style={{ height: '38px', whiteSpace: 'nowrap' }}
+                            className="btn-secondary btn-reload"
                         >
                             Analizar otro archivo
                         </button>
@@ -182,6 +181,10 @@ const Dashboard = ({ messages, fileName }) => {
                     )}
                 </>
             )}
+
+            <footer className="dashboard-footer">
+                <p>© {new Date().getFullYear()} Whatsapp Chat Insights. No afiliado oficial de WhatsApp Inc.</p>
+            </footer>
         </div>
     );
 };

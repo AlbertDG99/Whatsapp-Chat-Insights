@@ -178,7 +178,7 @@ const FileUploader = ({ onDataLoaded, onLoading }) => {
       </div>
 
       <div className="how-to-guide">
-        <h3>Cómo exportar tu chat</h3>
+        <h3 className="section-title-center">Cómo exportar tu chat</h3>
         <div className="steps-grid">
           <div className="step-card">
             <div className="step-number">1</div>

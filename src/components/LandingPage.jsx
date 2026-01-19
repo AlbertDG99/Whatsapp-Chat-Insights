@@ -2,9 +2,7 @@ import React from 'react';
 import FileUploader from './FileUploader';
 import { MessageSquare, Shield, BarChart2, Zap } from 'lucide-react';
 import { Bar, Line } from 'react-chartjs-2';
-
-// Register ChartJS components if needed, though likely handled at App root.
-// Assuming ChartJS.register(...) is done in src/main.jsx or similar.
+import FadeInSection from './common/FadeInSection';
 
 const commonOptions = {
   responsive: true,
@@ -52,142 +50,166 @@ const LandingPage = ({ onDataLoaded, onLoading }) => {
   return (
     <div className="landing-page">
       <div className="landing-hero">
-        <div className="hero-content">
+        <FadeInSection>
+          <div className="hero-content">
+            <h1>Descubre que dicen tus chats realmente</h1>
+            <p className="hero-subtitle">
+              Analiza tus conversaciones de WhatsApp de forma <strong>100% segura y privada</strong>.
+              Tus datos nunca salen de tu dispositivo.
+            </p>
 
-          <h1>Descubre que dicen tus chats realmente</h1>
-          <p className="hero-subtitle">
-            Analiza tus conversaciones de WhatsApp de forma <strong>100% segura y privada</strong>.
-            Tus datos nunca salen de tu dispositivo.
-          </p>
-
-          <div className="upload-section-wrapper">
-            <FileUploader onDataLoaded={onDataLoaded} onLoading={onLoading} />
+            <div className="upload-section-wrapper">
+              <FileUploader onDataLoaded={onDataLoaded} onLoading={onLoading} />
+            </div>
           </div>
-        </div>
+        </FadeInSection>
       </div>
 
       <div className="examples-section">
-        <h2 className="section-title-center">¿Qué vas a descubrir?</h2>
+        <FadeInSection>
+          <h2 className="section-title-center">¿Qué vas a descubrir?</h2>
+        </FadeInSection>
         <div className="examples-grid">
 
-          {/* Card 1: King of Text (Bar Chart) */}
-          <div className="example-card">
-            <div className="example-emoji">👑</div>
-            <h3>El Rey del Texto</h3>
-            <p>"¿Siempre has tenido dudas de quién es el que nunca se calla? Descubre quién es el rey imbatible de darle a la lengua."</p>
-            <div className="mock-chart-container">
-              <Bar
-                data={{
-                  labels: ['Santi 🎸', 'Leo ⚽', 'Yo'],
-                  datasets: [{
-                    label: 'Mensajes',
-                    data: [850, 420, 150], /* Updated data numbers for more contrast */
-                    backgroundColor: ['rgba(255,255,255,0.2)', '#00a884', 'rgba(255,255,255,0.2)'],
-                    borderRadius: 4
-                  }]
-                }}
-                options={barChartOptions}
-              />
+          {/* Card 1: King of Text */}
+          <FadeInSection delay="0.1s">
+            <div className="example-card">
+              <div className="example-emoji">👑</div>
+              <h3>El Rey del Texto</h3>
+              <p>"¿Siempre has tenido dudas de quién es el que nunca se calla? Descubre quién es el rey imbatible de darle a la lengua."</p>
+              <div className="mock-chart-container">
+                <Bar
+                  data={{
+                    labels: ['Santi 🎸', 'Leo ⚽', 'Yo'],
+                    datasets: [{
+                      label: 'Mensajes',
+                      data: [850, 420, 150],
+                      backgroundColor: ['rgba(255,255,255,0.2)', '#00a884', 'rgba(255,255,255,0.2)'],
+                      borderRadius: 4
+                    }]
+                  }}
+                  options={barChartOptions}
+                />
+              </div>
             </div>
-          </div>
+          </FadeInSection>
 
-          {/* Card 2: Night Owl (Line Chart or Hourly Bar) */}
-          <div className="example-card">
-            <div className="example-emoji">🦉</div>
-            <h3>El Búho Nocturno</h3>
-            <p>"¿Quién manda memes a las 3 AM? Revela quién mantiene el grupo vivo mientras el resto del mundo duerme."</p>
-            <div className="mock-chart-container">
-              <Line
-                data={{
-                  labels: ['00:00', '01:00', '02:00', '03:00', '04:00'],
-                  datasets: [{
-                    label: 'Mensajes de Alex',
-                    data: [12, 45, 32, 15, 2],
-                    borderColor: '#53bdeb',
-                    backgroundColor: 'rgba(83, 189, 235, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 3
-                  }]
-                }}
-                options={lineChartOptions}
-              />
+          {/* Card 2: Night Owl */}
+          <FadeInSection delay="0.2s">
+            <div className="example-card">
+              <div className="example-emoji">🦉</div>
+              <h3>El Búho Nocturno</h3>
+              <p>"¿Quién manda memes a las 3 AM? Revela quién mantiene el grupo vivo mientras el resto del mundo duerme."</p>
+              <div className="mock-chart-container">
+                <Line
+                  data={{
+                    labels: ['00:00', '01:00', '02:00', '03:00', '04:00'],
+                    datasets: [{
+                      label: 'Mensajes de Alex',
+                      data: [12, 45, 32, 15, 2],
+                      borderColor: '#53bdeb',
+                      backgroundColor: 'rgba(83, 189, 235, 0.1)',
+                      tension: 0.4,
+                      fill: true,
+                      pointRadius: 3
+                    }]
+                  }}
+                  options={lineChartOptions}
+                />
+              </div>
             </div>
-          </div>
+          </FadeInSection>
 
-          {/* Card 3: Historic Streak (Widget) - REPLACED Doughnut */}
-          <div className="example-card">
-            <div className="example-emoji">🏆</div>
-            <h3>La Chapa Histórica</h3>
-            <p>"¿Quién escribió 50 mensajes seguidos sin respuesta? Descubre el monólogo más largo de la historia de tu grupo."</p>
-            <div className="mock-widget-container helpful-widget">
-              <div className="mini-streak">
-                <div className="ms-icon">🥇</div>
-                <div className="ms-content">
-                  <span className="ms-author">Ana</span>
-                  <span className="ms-count">47 mensajes</span>
-                  <span className="ms-time">14 min seguidos</span>
+          {/* Card 3: Historic Streak */}
+          <FadeInSection delay="0.3s">
+            <div className="example-card">
+              <div className="example-emoji">🏆</div>
+              <h3>La Chapa Histórica</h3>
+              <p>"¿Quién escribió 50 mensajes seguidos sin respuesta? Descubre el monólogo más largo de la historia de tu grupo."</p>
+              <div className="mock-widget-container helpful-widget">
+                <div className="mini-streak">
+                  <div className="ms-icon">🥇</div>
+                  <div className="ms-content">
+                    <span className="ms-author">Ana</span>
+                    <span className="ms-count">47 mensajes</span>
+                    <span className="ms-time">14 min seguidos</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </FadeInSection>
 
-          {/* Card 4: Curiosities (KPIs) - REPLACED Podcaster */}
-          <div className="example-card">
-            <div className="example-emoji">⚡</div>
-            <h3>Datos Curiosos</h3>
-            <p>"Estadísticas rápidas que te sorprenderán. Desde cuántos días habéis hablado hasta el total de palabras."</p>
-            <div className="mock-widget-container kpi-widget">
-              <div className="mini-kpi">
-                <span className="mk-value">12k</span>
-                <span className="mk-label">Mensajes</span>
-              </div>
-              <div className="mini-kpi">
-                <span className="mk-value">😳</span>
-                <span className="mk-label">Top Emoji</span>
-                <span className="mk-sub">Marta</span>
-              </div>
-              <div className="mini-kpi">
-                <span className="mk-value">842</span>
-                <span className="mk-label">Audios</span>
+          {/* Card 4: Curiosities */}
+          <FadeInSection delay="0.4s">
+            <div className="example-card">
+              <div className="example-emoji">⚡</div>
+              <h3>Datos Curiosos</h3>
+              <p>"Estadísticas rápidas que te sorprenderán. Desde cuántos días habéis hablado hasta el total de palabras."</p>
+              <div className="mock-widget-container kpi-widget">
+                <div className="mini-kpi">
+                  <span className="mk-value">12k</span>
+                  <span className="mk-label">Mensajes</span>
+                </div>
+                <div className="mini-kpi">
+                  <span className="mk-value">😳</span>
+                  <span className="mk-label">Top Emoji</span>
+                  <span className="mk-sub">Marta</span>
+                </div>
+                <div className="mini-kpi">
+                  <span className="mk-value">842</span>
+                  <span className="mk-label">Audios</span>
+                </div>
               </div>
             </div>
-          </div>
+          </FadeInSection>
 
         </div>
       </div>
 
       <div className="features-section">
-        <h2 className="section-title-center">¿Por qué usar Chat Insights?</h2>
+        <FadeInSection>
+          <h2 className="section-title-center">¿Por qué usar Chat Insights?</h2>
+        </FadeInSection>
         <div className="features-grid">
-          <div className="feature-card">
-            <div className="feature-icon">
-              <Shield size={32} />
+          <FadeInSection delay="0.1s">
+            <div className="feature-card">
+              <div className="feature-icon">
+                <Shield size={32} />
+              </div>
+              <h3>Privacidad Total</h3>
+              <p>El análisis se realiza en tu navegador. Ningún dato se envía a ninguń servidor.</p>
             </div>
-            <h3>Privacidad Total</h3>
-            <p>El análisis se realiza en tu navegador. Ningún dato se envía a ninguń servidor.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">
-              <BarChart2 size={32} />
+          </FadeInSection>
+
+          <FadeInSection delay="0.2s">
+            <div className="feature-card">
+              <div className="feature-icon">
+                <BarChart2 size={32} />
+              </div>
+              <h3>Estadísticas Detalladas</h3>
+              <p>Descubre quién habla más, horarios más activos y patrones de conversación.</p>
             </div>
-            <h3>Estadísticas Detalladas</h3>
-            <p>Descubre quién habla más, horarios más activos y patrones de conversación.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">
-              <MessageSquare size={32} />
+          </FadeInSection>
+
+          <FadeInSection delay="0.3s">
+            <div className="feature-card">
+              <div className="feature-icon">
+                <MessageSquare size={32} />
+              </div>
+              <h3>Análisis de Sentimiento</h3>
+              <p>Entiende la dinámica de tus chats, desde los más divertidos hasta los más intensos.</p>
             </div>
-            <h3>Análisis de Sentimiento</h3>
-            <p>Entiende la dinámica de tus chats, desde los más divertidos hasta los más intensos.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">
-              <Zap size={32} />
+          </FadeInSection>
+
+          <FadeInSection delay="0.4s">
+            <div className="feature-card">
+              <div className="feature-icon">
+                <Zap size={32} />
+              </div>
+              <h3>Rápido y Fácil</h3>
+              <p>Solo exporta tu chat desde WhatsApp y arrastra el archivo. Resultados en segundos.</p>
             </div>
-            <h3>Rápido y Fácil</h3>
-            <p>Solo exporta tu chat desde WhatsApp y arrastra el archivo. Resultados en segundos.</p>
-          </div>
+          </FadeInSection>
         </div>
       </div>
 

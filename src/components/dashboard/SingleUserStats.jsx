@@ -1,16 +1,31 @@
 import React, { useMemo } from 'react';
 import {
-    MessageCircle, Type, Clock, Smile, Image, Link as LinkIcon,
+    MessageCircle, Type, Smile, Image, Link as LinkIcon,
     HelpCircle, Zap, Calendar
 } from 'lucide-react';
 import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
 import HistoricStreak from './HistoricStreak';
-import StatCard from './StatCard';
+import MiniStatCard from './MiniStatCard';
 import FadeInSection from '../common/FadeInSection';
 import { EMOJI_REGEX, LAUGHTER_REGEX, URL_REGEX, DEFAULT_CHART_OPTIONS } from '../../utils/constants';
 
+/**
+ * SingleUserStats Component
+ * 
+ * Displays statistics for a single user with a scalable, data-driven layout.
+ * 
+ * Layout Rules:
+ * 1. Top KPIs (Mensajes, Días Activos) always stay at the top
+ * 2. Section content alternates: Chart → StatGroup(4) → Chart → StatGroup(4)...
+ * 3. Remaining stats (< 4) go at the end of the section
+ * 4. StatGroups display as 2x2 grids occupying the same space as a chart
+ */
 const SingleUserStats = ({ messages, allMessages, author }) => {
     const chartOptions = DEFAULT_CHART_OPTIONS;
+    const pieChartOptions = {
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { color: '#e9edef' } } }
+    };
 
     const stats = useMemo(() => {
         const userMessages = messages.filter(m => m.author === author);
@@ -19,20 +34,14 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
 
         if (totalMessages === 0) return null;
 
-        // Timestamps and dates
         const timestamps = userMessages.map(m => m.timestamp);
         const dates = timestamps.map(t => t.toISOString().split('T')[0]);
         const uniqueDates = new Set(dates);
         const daysActive = uniqueDates.size;
 
-        // Word statistics
         const totalWords = textMessages.reduce((acc, curr) => acc + curr.content.split(/\s+/).length, 0);
-        const avgWords = textMessages.length > 0 ? (totalWords / textMessages.length).toFixed(1) : 0;
-
-        // Multimedia count
         const totalMedia = userMessages.filter(m => m.isMultimedia).length;
 
-        // Emoji analysis
         const emojiCounts = {};
         textMessages.forEach(m => {
             const match = m.content.match(EMOJI_REGEX);
@@ -40,16 +49,10 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
         });
         const top5Emojis = Object.entries(emojiCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
-        // Laughter count
         const laughterCount = textMessages.filter(m => LAUGHTER_REGEX.test(m.content)).length;
-
-        // Links count
         const linkCount = textMessages.filter(m => URL_REGEX.test(m.content)).length;
-
-        // Questions count
         const questionCount = textMessages.filter(m => m.content.includes('?')).length;
 
-        // Conversation starters (> 4 hours gap)
         let starterCount = 0;
         if (allMessages) {
             let lastMsgTime = null;
@@ -62,33 +65,38 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
             }
         }
 
-        // Hourly distribution
         const hourCounts = Array(24).fill(0);
         timestamps.forEach(t => hourCounts[t.getHours()]++);
 
-        // Weekly distribution (convert to Mon-Sun)
         const dayCounts = Array(7).fill(0);
         timestamps.forEach(t => dayCounts[t.getDay()]++);
         const monSunCounts = [...dayCounts.slice(1), dayCounts[0]];
 
-        // Weekend vs Weekday
         let weekend = 0, weekday = 0;
         timestamps.forEach(t => {
             const d = t.getDay();
             if (d === 0 || d === 6) weekend++; else weekday++;
         });
 
-        // Seasonality (Monthly)
         const monthCounts = Array(12).fill(0);
         timestamps.forEach(t => monthCounts[t.getMonth()]++);
 
-        // Daily timeline
-        const timelineMap = {};
-        dates.forEach(d => timelineMap[d] = (timelineMap[d] || 0) + 1);
-        const sortedDates = Array.from(uniqueDates).sort();
-        const timelineDataPoints = sortedDates.map(d => timelineMap[d]);
+        const quarterlyMap = {};
+        timestamps.forEach(t => {
+            const month = t.getMonth();
+            const year = t.getFullYear();
+            const quarter = Math.floor(month / 3) + 1;
+            const key = `${year}-Q${quarter}`;
+            quarterlyMap[key] = (quarterlyMap[key] || 0) + 1;
+        });
 
-        // Historic streak calculation
+        const sortedQuarterKeys = Object.keys(quarterlyMap).sort();
+        const timelineLabels = sortedQuarterKeys.map(k => {
+            const [y, q] = k.split('-');
+            return `${q} ${y}`;
+        });
+        const timelineDataPoints = sortedQuarterKeys.map(k => quarterlyMap[k]);
+
         let streak = { count: 0, startMessage: null, endMessage: null, startTimestamp: null, endTimestamp: null, author };
         if (allMessages && allMessages.length > 0) {
             let currentStreak = 0;
@@ -131,7 +139,6 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
             totalMessages,
             daysActive,
             totalWords,
-            avgWords,
             totalMedia,
             top5Emojis,
             laughterCount,
@@ -157,8 +164,8 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
                     datasets: [{ label: 'Mensajes', data: monthCounts, borderColor: '#9966FF', tension: 0.3, fill: true, backgroundColor: 'rgba(153, 102, 255, 0.2)' }]
                 },
                 timeline: {
-                    labels: sortedDates,
-                    datasets: [{ label: 'Actividad Diaria', data: timelineDataPoints, borderColor: '#00a884', pointRadius: 1 }]
+                    labels: timelineLabels,
+                    datasets: [{ label: 'Actividad', data: timelineDataPoints, borderColor: '#00a884', backgroundColor: 'rgba(0, 168, 132, 0.2)', fill: true, tension: 0.3 }]
                 }
             }
         };
@@ -166,83 +173,216 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
 
     if (!stats) return <div className="dashboard-empty">Sin datos para este usuario.</div>;
 
-    return (
-        <div className="single-user-dashboard">
-            <StatCard icon={MessageCircle} title="Mensajes Totales" value={stats.totalMessages.toLocaleString()} subtitle="Mensajes enviados" />
-            <StatCard icon={Calendar} title="Días Activos" value={stats.daysActive.toLocaleString()} subtitle="Días con actividad" />
+    // =========================================
+    // DATA-DRIVEN LAYOUT CONFIGURATION
+    // =========================================
 
-            {/* Temporal Analysis Section */}
-            <div className="dashboard-section">
-                <h2 className="section-title">Análisis Temporal</h2>
-                <div className="layout-grid">
-                    <FadeInSection className="col-span-4">
-                        <div className="card card-tall">
-                            <h3>Actividad en el Tiempo</h3>
-                            <div style={{ flex: 1, minHeight: 0 }}><Line data={stats.charts.timeline} options={chartOptions} /></div>
-                        </div>
-                    </FadeInSection>
-                    <FadeInSection className="col-span-2">
-                        <div className="card card-chart">
-                            <h3>Por Hora del Día</h3>
-                            <div style={{ flex: 1, minHeight: 0 }}><Bar data={stats.charts.hourly} options={chartOptions} /></div>
-                        </div>
-                    </FadeInSection>
-                    <FadeInSection className="col-span-2">
-                        <div className="card card-chart">
-                            <h3>Por Día de la Semana</h3>
-                            <div style={{ flex: 1, minHeight: 0 }}><Bar data={stats.charts.weekly} options={chartOptions} /></div>
-                        </div>
-                    </FadeInSection>
-                    <FadeInSection className="col-span-1">
-                        <div className="card card-chart">
-                            <h3>Finde vs Semana</h3>
-                            <div style={{ flex: 1, minHeight: 0, display: 'flex', justifyContent: 'center' }}><Pie data={stats.charts.weekend} options={chartOptions} /></div>
-                        </div>
-                    </FadeInSection>
-                    <FadeInSection className="col-span-3">
-                        <div className="card card-chart">
-                            <h3>Estacionalidad</h3>
-                            <div style={{ flex: 1, minHeight: 0 }}><Line data={stats.charts.seasonality} options={chartOptions} /></div>
-                        </div>
-                    </FadeInSection>
+    // Top KPIs - Always visible at the very top
+    const topKPIs = [
+        { id: 'messages', icon: MessageCircle, title: 'Mensajes', value: stats.totalMessages.toLocaleString() },
+        { id: 'days', icon: Calendar, title: 'Días Activos', value: stats.daysActive.toLocaleString() }
+    ];
+
+    // Section-based content configuration
+    // Each section can have charts and stats that will be interleaved
+    const sections = [
+        {
+            id: 'temporal',
+            title: 'Análisis Temporal',
+            charts: [
+                { id: 'timeline', title: 'Actividad en el Tiempo', type: 'line', data: stats.charts.timeline, fullWidth: true },
+                { id: 'hourly', title: 'Por Hora del Día', type: 'bar', data: stats.charts.hourly },
+                { id: 'weekly', title: 'Por Día de la Semana', type: 'bar', data: stats.charts.weekly },
+                { id: 'weekend', title: 'Fin de Semana vs Laborables', type: 'pie', data: stats.charts.weekend },
+                { id: 'seasonality', title: 'Estacionalidad (Mensual)', type: 'line', data: stats.charts.seasonality, fullWidth: true }
+            ],
+            stats: [] // No stats in temporal section
+        },
+        {
+            id: 'content',
+            title: 'Análisis de Contenido',
+            charts: [
+                {
+                    id: 'emojis',
+                    title: 'Emojis Más Usados',
+                    type: 'doughnut',
+                    data: {
+                        labels: stats.top5Emojis.map(e => e[0]),
+                        datasets: [{ data: stats.top5Emojis.map(e => e[1]), backgroundColor: ['#FFD700', '#FFA500', '#FF8C00', '#DAA520', '#B8860B'] }]
+                    }
+                }
+            ],
+            stats: [
+                { id: 'words', icon: Type, title: 'Palabras', value: stats.totalWords.toLocaleString() },
+                { id: 'media', icon: Image, title: 'Multimedia', value: stats.totalMedia },
+                { id: 'initiatives', icon: Zap, title: 'Iniciativas', value: stats.starterCount },
+                { id: 'laughs', icon: Smile, title: 'Risas', value: stats.laughterCount }
+            ]
+        },
+        {
+            id: 'social',
+            title: 'Dinámicas Sociales',
+            charts: [], // No charts, just stats and special components
+            stats: [
+                { id: 'links', icon: LinkIcon, title: 'Links', value: stats.linkCount },
+                { id: 'questions', icon: HelpCircle, title: 'Preguntas', value: stats.questionCount }
+            ],
+            specialComponents: [
+                { id: 'streak', type: 'historicStreak', data: stats.streak }
+            ]
+        }
+    ];
+
+    // =========================================
+    // LAYOUT RENDERING HELPERS
+    // =========================================
+
+    /**
+     * Renders a chart based on its configuration
+     */
+    const renderChart = (chart) => {
+        const ChartComponent = {
+            line: Line,
+            bar: Bar,
+            pie: Pie,
+            doughnut: Doughnut
+        }[chart.type];
+
+        const options = chart.type === 'pie' || chart.type === 'doughnut' ? pieChartOptions : chartOptions;
+
+        return (
+            <FadeInSection key={chart.id}>
+                <div className={`card ${chart.fullWidth ? 'full-width' : ''}`}>
+                    <h3>{chart.title}</h3>
+                    <div className="card-chart-container">
+                        <ChartComponent data={chart.data} options={options} />
+                    </div>
+                </div>
+            </FadeInSection>
+        );
+    };
+
+    /**
+     * Renders a group of 4 stat cards in a 2x2 grid
+     */
+    const renderStatGroup = (statGroup, groupIndex) => (
+        <FadeInSection key={`stat-group-${groupIndex}`}>
+            <div className="stat-group">
+                <div className="stat-group-grid">
+                    {statGroup.map(stat => (
+                        <MiniStatCard
+                            key={stat.id}
+                            icon={stat.icon}
+                            title={stat.title}
+                            value={stat.value}
+                        />
+                    ))}
                 </div>
             </div>
+        </FadeInSection>
+    );
 
-            {/* Content Section */}
-            <div className="dashboard-section">
-                <h2 className="section-title">Contenido</h2>
-                <div className="layout-grid">
-                    <StatCard icon={Image} title="Multimedia" value={stats.totalMedia} subtitle="Fotos, videos, audios" gradient="linear-gradient(135deg, #FF9DA7 0%, #FF5C77 100%)" />
-                    <StatCard icon={Type} title="Total Palabras" value={stats.totalWords.toLocaleString()} subtitle="Total escrito" />
+    /**
+     * Interleaves charts and stat groups following the rule:
+     * Chart → StatGroup(4) → Chart → StatGroup(4)...
+     * Remaining stats (< 4) go at the end
+     */
+    const renderInterleavedContent = (charts, allStats) => {
+        const elements = [];
 
-                    <FadeInSection className="col-span-2">
-                        <div className="card card-chart">
-                            <h3>Emojis Más Usados</h3>
-                            <div style={{ flex: 1, minHeight: 0, display: 'flex', justifyContent: 'center' }}>
-                                <Doughnut
-                                    data={{
-                                        labels: stats.top5Emojis.map(e => e[0]),
-                                        datasets: [{ data: stats.top5Emojis.map(e => e[1]), backgroundColor: ['#FFD700', '#FFA500', '#FF8C00', '#DAA520', '#B8860B'] }]
-                                    }}
-                                    options={chartOptions}
+        // Split stats into groups of 6 and remainder
+        const statGroups = [];
+        const remainder = [];
+
+        for (let i = 0; i < allStats.length; i++) {
+            if (i < Math.floor(allStats.length / 6) * 6) {
+                const groupIndex = Math.floor(i / 6);
+                if (!statGroups[groupIndex]) statGroups[groupIndex] = [];
+                statGroups[groupIndex].push(allStats[i]);
+            } else {
+                remainder.push(allStats[i]);
+            }
+        }
+
+        // Interleave charts and stat groups
+        let chartIndex = 0;
+        let statGroupIndex = 0;
+
+        while (chartIndex < charts.length || statGroupIndex < statGroups.length) {
+            // Add next chart
+            if (chartIndex < charts.length) {
+                elements.push(renderChart(charts[chartIndex]));
+                chartIndex++;
+            }
+
+            // Add next stat group of 4
+            if (statGroupIndex < statGroups.length) {
+                elements.push(renderStatGroup(statGroups[statGroupIndex], statGroupIndex));
+                statGroupIndex++;
+            }
+        }
+
+        // Add remainder stats at the end (less than 4)
+        if (remainder.length > 0) {
+            elements.push(
+                <FadeInSection key="stat-remainder">
+                    <div className="stat-group">
+                        <div className="stat-group-grid">
+                            {remainder.map(stat => (
+                                <MiniStatCard
+                                    key={stat.id}
+                                    icon={stat.icon}
+                                    title={stat.title}
+                                    value={stat.value}
                                 />
-                            </div>
+                            ))}
                         </div>
-                    </FadeInSection>
-                </div>
+                    </div>
+                </FadeInSection>
+            );
+        }
+
+        return elements;
+    };
+
+    /**
+     * Renders special components like HistoricStreak
+     */
+    const renderSpecialComponent = (component) => {
+        if (component.type === 'historicStreak' && component.data.count > 0) {
+            return <HistoricStreak key={component.id} streak={component.data} />;
+        }
+        return null;
+    };
+
+    // =========================================
+    // MAIN RENDER
+    // =========================================
+
+    return (
+        <div className="single-user-layout">
+            {/* Top KPIs - Always at the very top */}
+            <div className="stats-row top-kpis">
+                {topKPIs.map(kpi => (
+                    <MiniStatCard
+                        key={kpi.id}
+                        icon={kpi.icon}
+                        title={kpi.title}
+                        value={kpi.value}
+                    />
+                ))}
             </div>
 
-            {/* Social Dynamics Section */}
-            <div className="dashboard-section">
-                <h2 className="section-title">Dinámicas Sociales</h2>
-                <div className="layout-grid">
-                    {stats.streak.count > 0 && <HistoricStreak streak={stats.streak} />}
-                    <StatCard icon={Zap} title="Iniciativas" value={stats.starterCount} subtitle="Conversaciones iniciadas" gradient="linear-gradient(135deg, #FFD700 0%, #FFA500 100%)" />
-                    <StatCard icon={Smile} title="Risas" value={stats.laughterCount} subtitle="Jaja, lol, xd..." gradient="linear-gradient(135deg, #59a14f 0%, #43e669 100%)" />
-                    <StatCard icon={LinkIcon} title="Links" value={stats.linkCount} subtitle="Enlaces compartidos" gradient="linear-gradient(135deg, #53bdeb 0%, #2980b9 100%)" />
-                    <StatCard icon={HelpCircle} title="Preguntas" value={stats.questionCount} subtitle="Veces que preguntó (?)" gradient="linear-gradient(135deg, #9c755f 0%, #795548 100%)" />
+            {/* Sections with interleaved content */}
+            {sections.map(section => (
+                <div key={section.id} className="dashboard-section">
+                    <h2 className="section-title">{section.title}</h2>
+                    <div className="dashboard-grid">
+                        {renderInterleavedContent(section.charts, section.stats)}
+                        {section.specialComponents?.map(renderSpecialComponent)}
+                    </div>
                 </div>
-            </div>
+            ))}
         </div>
     );
 };

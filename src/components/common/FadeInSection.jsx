@@ -24,7 +24,7 @@ const FadeInSection = ({ children, className = '', delay = '0s', ...props }) => 
         <div
             className={`fade-in-section ${isVisible ? 'is-visible' : ''} ${className}`}
             ref={domRef}
-            style={{ height: '100%', width: '100%', transitionDelay: delay }}
+            style={{ '--delay': delay }}
             {...props}
         >
             {children}

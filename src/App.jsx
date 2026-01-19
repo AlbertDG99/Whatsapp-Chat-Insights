@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './App.css';
+
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
 import { RefreshCw } from 'lucide-react';
