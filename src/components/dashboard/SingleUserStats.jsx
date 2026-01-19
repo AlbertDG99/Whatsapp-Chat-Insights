@@ -104,10 +104,14 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
             let tempStreakMessages = [];
 
             for (const msg of allMessages) {
+                const isMediaOrDeleted = msg.isMultimedia || DELETED_MESSAGE_REGEX.test(msg.content);
+
                 if (msg.author === author) {
-                    if (currentStreak === 0) currentStartMsg = msg;
-                    currentStreak++;
-                    tempStreakMessages.push(msg);
+                    if (!isMediaOrDeleted) {
+                        if (currentStreak === 0) currentStartMsg = msg;
+                        currentStreak++;
+                        tempStreakMessages.push(msg);
+                    }
                 } else {
                     if (currentStreak > streak.count) {
                         streak = {

@@ -89,39 +89,41 @@ export const calculateStats = (messages) => {
         const author = msg.author || 'Unknown';
         const content = msg.content || '';
 
-        // Skip deleted messages
-        if (DELETED_MESSAGE_REGEX.test(content)) return;
-
-        // Count multimedia separately and skip further processing
-        if (msg.isMultimedia) {
-            mediaCounts[author] = (mediaCounts[author] || 0) + 1;
-            // Still count as active day if it has a timestamp
-            if (msg.timestamp) {
-                uniqueDays.add(msg.timestamp.toISOString().split('T')[0]);
-            }
-            return;
-        }
-
-        validMessageCount++;
+        const isMediaOrDeleted = msg.isMultimedia || DELETED_MESSAGE_REGEX.test(content);
 
         // Update streak
         if (author === currentStreak.author) {
-            currentStreak.count++;
-            currentStreak.endTimestamp = msg.timestamp;
-            currentStreak.endMessage = content;
+            if (!isMediaOrDeleted) {
+                currentStreak.count++;
+                currentStreak.endTimestamp = msg.timestamp;
+                currentStreak.endMessage = content;
+            }
         } else {
             if (currentStreak.count > historicStreak.count) {
                 historicStreak = { ...currentStreak };
             }
             currentStreak = {
                 author,
-                count: 1,
+                count: isMediaOrDeleted ? 0 : 1,
                 startTimestamp: msg.timestamp,
                 endTimestamp: msg.timestamp,
                 startMessage: content,
                 endMessage: content
             };
         }
+
+        // Multimedia counts
+        if (msg.isMultimedia) {
+            mediaCounts[author] = (mediaCounts[author] || 0) + 1;
+            if (msg.timestamp) {
+                uniqueDays.add(msg.timestamp.toISOString().split('T')[0]);
+            }
+        }
+
+        // Skip further processing for media/deleted (words, emojis, etc.)
+        if (isMediaOrDeleted) return;
+
+        validMessageCount++;
 
         // Count by author
         authorCounts[author] = (authorCounts[author] || 0) + 1;
