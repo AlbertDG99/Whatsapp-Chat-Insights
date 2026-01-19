@@ -7,7 +7,7 @@ import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
 import HistoricStreak from './HistoricStreak';
 import MiniStatCard from './MiniStatCard';
 import FadeInSection from '../common/FadeInSection';
-import { EMOJI_REGEX, LAUGHTER_REGEX, URL_REGEX, DEFAULT_CHART_OPTIONS } from '../../utils/constants';
+import { EMOJI_REGEX, LAUGHTER_REGEX, URL_REGEX, DELETED_MESSAGE_REGEX, DEFAULT_CHART_OPTIONS } from '../../utils/constants';
 
 /**
  * SingleUserStats Component
