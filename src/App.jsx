@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 
 import LandingPage from './components/LandingPage';
-import Dashboard from './components/Dashboard';
-import { RefreshCw } from 'lucide-react';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import DashboardSkeleton from './components/common/DashboardSkeleton';
 import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import PerformanceMonitor from './components/common/PerformanceMonitor';
 import { generateMockMessages } from './utils/mockData';
+import appStyles from './App.module.css';
+
+const Dashboard = lazy(() => import('./components/Dashboard'));
 
 function App() {
   const [messages, setMessages] = useState(null);
@@ -13,9 +17,31 @@ function App() {
   const [loading, setLoading] = useState(false);
 
   const handleDataLoaded = (data, name) => {
-    setMessages(data);
-    setFileName(name);
-    setLoading(false);
+    const update = () => {
+      setMessages(data);
+      setFileName(name);
+      setLoading(false);
+    };
+
+    // Use View Transitions API with graceful fallback
+    if (document.startViewTransition) {
+      document.startViewTransition(update);
+    } else {
+      update();
+    }
+  };
+
+  const handleReset = () => {
+    const update = () => {
+      setMessages(null);
+      setFileName('');
+    };
+
+    if (document.startViewTransition) {
+      document.startViewTransition(update);
+    } else {
+      update();
+    }
   };
 
   const handleLoadDemo = () => {
@@ -23,6 +49,7 @@ function App() {
     setTimeout(() => {
       const mockData = generateMockMessages();
       handleDataLoaded(mockData, 'Chat de Prueba (Demo)');
+      toast.success('Datos de demostración cargados');
     }, 800);
   };
 
@@ -38,49 +65,31 @@ function App() {
         }}
       />
 
-      <main>
-        {loading && (
-          <div className="loading-state">
-            <RefreshCw className="spin" size={32} />
-            <p>Procesando archivo de chat...</p>
-          </div>
-        )}
+      <ErrorBoundary>
+        <main>
+          {loading && <DashboardSkeleton />}
 
-        {!messages && !loading && (
-          <>
-            <LandingPage onDataLoaded={handleDataLoaded} onLoading={setLoading} />
-            {import.meta.env.DEV && (
-              <button
-                onClick={handleLoadDemo}
-                style={{
-                  position: 'fixed',
-                  bottom: '2rem',
-                  right: '2rem',
-                  zIndex: 9999,
-                  padding: '0.8rem 1.5rem',
-                  background: '#00a884',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '50px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  fontSize: '1rem'
-                }}
-              >
-                🧪 Demo Data
-              </button>
-            )}
-          </>
-        )}
+          {!messages && !loading && (
+            <>
+              <LandingPage onDataLoaded={handleDataLoaded} onLoading={setLoading} />
+              {import.meta.env.DEV && (
+                <button
+                  onClick={handleLoadDemo}
+                  className={appStyles.demoButton}
+                >
+                  🧪 Demo Data
+                </button>
+              )}
+            </>
+          )}
 
-        {messages && !loading && (
-          <Dashboard messages={messages} fileName={fileName} />
-        )}
-      </main>
+          {messages && !loading && (
+            <Suspense fallback={<DashboardSkeleton />}>
+              <Dashboard messages={messages} fileName={fileName} onReset={handleReset} />
+            </Suspense>
+          )}
+        </main>
+      </ErrorBoundary>
 
       {import.meta.env.DEV && <PerformanceMonitor />}
     </div>

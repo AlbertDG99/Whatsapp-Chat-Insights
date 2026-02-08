@@ -1,0 +1,26 @@
+@layer components {
+  .demoButton {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: var(--z-demo);
+    padding: 0.8rem 1.5rem;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border: none;
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+}

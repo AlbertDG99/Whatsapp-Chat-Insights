@@ -1,10 +1,7 @@
 import FadeInSection from '../common/FadeInSection';
 import { Trophy, Clock, MessageCircle } from 'lucide-react';
+import styles from './HistoricStreak.module.css';
 
-/**
- * HistoricStreak Component
- * Displays the historic streak with enhanced decoration and detailed information.
- */
 const HistoricStreak = ({ streak }) => {
     if (!streak || !streak.author) return null;
 
@@ -25,43 +22,43 @@ const HistoricStreak = ({ streak }) => {
     };
 
     return (
-        <FadeInSection className="col-span-1">
-            <div className="card historic-streak-card">
-                <div className="streak-header">
-                    <Trophy size={24} className="streak-icon" />
+        <FadeInSection>
+            <div className={styles.card}>
+                <div className={styles.header}>
+                    <Trophy size={24} />
                     <h3>Chapa Histórica</h3>
                 </div>
 
-                <div className="streak-main-compact">
-                    <div className="streak-author">{streak.author}</div>
-                    <div className="streak-count-inline">
-                        <span className="count-number-compact">{streak.count} </span>
-                        <span className="count-label-compact">mensajes seguidos</span>
+                <div className={styles.main}>
+                    <div className={styles.author}>{streak.author}</div>
+                    <div>
+                        <span className={styles.countNumber}>{streak.count} </span>
+                        <span>mensajes seguidos</span>
                     </div>
                 </div>
 
-                <div className="streak-timeline">
+                <div className={styles.timeline}>
                     <div className="timeline-point start">
                         <Clock size={14} />
-                        <span className="timeline-date">{formatDate(streak.startTimestamp)}</span>
+                        <span>{formatDate(streak.startTimestamp)}</span>
                     </div>
-                    <div className="timeline-connector"></div>
+                    <div className={styles.timelineConnector}></div>
                     <div className="timeline-point end">
                         <Clock size={14} />
-                        <span className="timeline-date">{formatDate(streak.endTimestamp)}</span>
+                        <span>{formatDate(streak.endTimestamp)}</span>
                     </div>
                 </div>
 
-                <div className="streak-quotes">
-                    <div className="quote-item first">
+                <div className={styles.quotes}>
+                    <div className={`${styles.quoteItem} ${styles.first}`}>
                         <MessageCircle size={12} />
-                        <span className="quote-label">Primer mensaje:</span>
-                        <span className="quote-text">"{truncateMessage(streak.startMessage)}"</span>
+                        <span>Primer mensaje:</span>
+                        <span className={styles.quoteText} title={streak.startMessage}>"{truncateMessage(streak.startMessage)}"</span>
                     </div>
-                    <div className="quote-item last">
+                    <div className={`${styles.quoteItem} ${styles.last}`}>
                         <MessageCircle size={12} />
-                        <span className="quote-label">Último mensaje:</span>
-                        <span className="quote-text">"{truncateMessage(streak.endMessage)}"</span>
+                        <span>Último mensaje:</span>
+                        <span className={styles.quoteText} title={streak.endMessage}>"{truncateMessage(streak.endMessage)}"</span>
                     </div>
                 </div>
             </div>

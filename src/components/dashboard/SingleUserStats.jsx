@@ -3,29 +3,18 @@ import {
     MessageCircle, Type, Smile, Image, Link as LinkIcon,
     HelpCircle, Zap, Calendar
 } from 'lucide-react';
-import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
 import HistoricStreak from './HistoricStreak';
+import WordSearchCard from './WordSearchCard';
 import MiniStatCard from './MiniStatCard';
 import FadeInSection from '../common/FadeInSection';
+import AccessibleChart from '../common/AccessibleChart';
 import { EMOJI_REGEX, LAUGHTER_REGEX, URL_REGEX, DELETED_MESSAGE_REGEX, DEFAULT_CHART_OPTIONS } from '../../utils/constants';
+import { PIE_CHART_OPTIONS, PIE_CHART_PLUGINS } from '../../utils/chartConfig';
+import dashStyles from '../Dashboard.module.css';
+import styles from './SingleUserStats.module.css';
 
-/**
- * SingleUserStats Component
- * 
- * Displays statistics for a single user with a scalable, data-driven layout.
- * 
- * Layout Rules:
- * 1. Top KPIs (Mensajes, Días Activos) always stay at the top
- * 2. Section content alternates: Chart → StatGroup(4) → Chart → StatGroup(4)...
- * 3. Remaining stats (< 4) go at the end of the section
- * 4. StatGroups display as 2x2 grids occupying the same space as a chart
- */
 const SingleUserStats = ({ messages, allMessages, author }) => {
     const chartOptions = DEFAULT_CHART_OPTIONS;
-    const pieChartOptions = {
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'right', labels: { color: '#e9edef' } } }
-    };
 
     const stats = useMemo(() => {
         const userMessages = messages.filter(m => m.author === author);
@@ -175,20 +164,13 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
         };
     }, [messages, allMessages, author]);
 
-    if (!stats) return <div className="dashboard-empty">Sin datos para este usuario.</div>;
+    if (!stats) return <div className={dashStyles.empty}>Sin datos para este usuario.</div>;
 
-    // =========================================
-    // DATA-DRIVEN LAYOUT CONFIGURATION
-    // =========================================
-
-    // Top KPIs - Always visible at the very top
     const topKPIs = [
         { id: 'messages', icon: MessageCircle, title: 'Mensajes', value: stats.totalMessages.toLocaleString() },
         { id: 'days', icon: Calendar, title: 'Días Activos', value: stats.daysActive.toLocaleString() }
     ];
 
-    // Section-based content configuration
-    // Each section can have charts and stats that will be interleaved
     const sections = [
         {
             id: 'temporal',
@@ -200,7 +182,7 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
                 { id: 'weekend', title: 'Fin de Semana vs Laborables', type: 'pie', data: stats.charts.weekend },
                 { id: 'seasonality', title: 'Estacionalidad (Mensual)', type: 'line', data: stats.charts.seasonality, fullWidth: true }
             ],
-            stats: [] // No stats in temporal section
+            stats: []
         },
         {
             id: 'content',
@@ -226,53 +208,60 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
         {
             id: 'social',
             title: 'Dinámicas Sociales',
-            charts: [], // No charts, just stats and special components
+            charts: [],
             stats: [
                 { id: 'links', icon: LinkIcon, title: 'Links', value: stats.linkCount },
                 { id: 'questions', icon: HelpCircle, title: 'Preguntas', value: stats.questionCount }
             ],
             specialComponents: [
-                { id: 'streak', type: 'historicStreak', data: stats.streak }
+                { id: 'streak', type: 'historicStreak', data: stats.streak },
+                { id: 'wordSearch', type: 'wordSearch' }
             ]
         }
     ];
 
-    // =========================================
-    // LAYOUT RENDERING HELPERS
-    // =========================================
+    const chartAriaLabels = {
+        timeline: 'Gráfico de línea: actividad en el tiempo',
+        hourly: 'Gráfico de barras: actividad por hora del día',
+        weekly: 'Gráfico de barras: actividad por día de la semana',
+        weekend: 'Gráfico circular: fin de semana vs días laborables',
+        seasonality: 'Gráfico de línea: estacionalidad mensual',
+        emojis: 'Gráfico de dona: emojis más usados'
+    };
 
-    /**
-     * Renders a chart based on its configuration
-     */
+    const getRowClass = (count) => {
+        if (count <= 1) return dashStyles.gridRows1;
+        if (count <= 4) return dashStyles.gridRows2;
+        return dashStyles.gridRows3;
+    };
+
     const renderChart = (chart) => {
-        const ChartComponent = {
-            line: Line,
-            bar: Bar,
-            pie: Pie,
-            doughnut: Doughnut
-        }[chart.type];
-
-        const options = chart.type === 'pie' || chart.type === 'doughnut' ? pieChartOptions : chartOptions;
+        const isPieType = chart.type === 'pie' || chart.type === 'doughnut';
+        const options = isPieType ? PIE_CHART_OPTIONS : chartOptions;
+        const plugins = isPieType ? PIE_CHART_PLUGINS : undefined;
 
         return (
             <FadeInSection key={chart.id}>
-                <div className={`card ${chart.fullWidth ? 'full-width' : ''}`}>
+                <div className={`${dashStyles.card} ${chart.fullWidth ? dashStyles.fullWidth : ''}`}>
                     <h3>{chart.title}</h3>
-                    <div className="card-chart-container">
-                        <ChartComponent data={chart.data} options={options} />
+                    <div className={dashStyles.chartContainer}>
+                        <AccessibleChart
+                            type={chart.type}
+                            data={chart.data}
+                            options={options}
+                            plugins={plugins}
+                            ariaLabel={chartAriaLabels[chart.id] || `Gráfico: ${chart.title}`}
+                        />
                     </div>
                 </div>
             </FadeInSection>
         );
     };
 
-    /**
-     * Renders a group of 4 stat cards in a 2x2 grid
-     */
     const renderStatGroup = (statGroup, groupIndex) => (
         <FadeInSection key={`stat-group-${groupIndex}`}>
-            <div className="stat-group">
-                <div className="stat-group-grid">
+            <div className={dashStyles.statGroup}>
+                <div className={`${dashStyles.statGroupGrid} ${getRowClass(statGroup.length)}`}>
                     {statGroup.map(stat => (
                         <MiniStatCard
                             key={stat.id}
@@ -286,15 +275,8 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
         </FadeInSection>
     );
 
-    /**
-     * Interleaves charts and stat groups following the rule:
-     * Chart → StatGroup(4) → Chart → StatGroup(4)...
-     * Remaining stats (< 4) go at the end
-     */
     const renderInterleavedContent = (charts, allStats) => {
         const elements = [];
-
-        // Split stats into groups of 6 and remainder
         const statGroups = [];
         const remainder = [];
 
@@ -308,30 +290,25 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
             }
         }
 
-        // Interleave charts and stat groups
         let chartIndex = 0;
         let statGroupIndex = 0;
 
         while (chartIndex < charts.length || statGroupIndex < statGroups.length) {
-            // Add next chart
             if (chartIndex < charts.length) {
                 elements.push(renderChart(charts[chartIndex]));
                 chartIndex++;
             }
-
-            // Add next stat group of 4
             if (statGroupIndex < statGroups.length) {
                 elements.push(renderStatGroup(statGroups[statGroupIndex], statGroupIndex));
                 statGroupIndex++;
             }
         }
 
-        // Add remainder stats at the end (less than 4)
         if (remainder.length > 0) {
             elements.push(
                 <FadeInSection key="stat-remainder">
-                    <div className="stat-group">
-                        <div className="stat-group-grid">
+                    <div className={dashStyles.statGroup}>
+                        <div className={`${dashStyles.statGroupGrid} ${getRowClass(remainder.length)}`}>
                             {remainder.map(stat => (
                                 <MiniStatCard
                                     key={stat.id}
@@ -349,24 +326,19 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
         return elements;
     };
 
-    /**
-     * Renders special components like HistoricStreak
-     */
     const renderSpecialComponent = (component) => {
         if (component.type === 'historicStreak' && component.data.count > 0) {
             return <HistoricStreak key={component.id} streak={component.data} />;
         }
+        if (component.type === 'wordSearch') {
+            return <WordSearchCard key={component.id} messages={messages} author={author} />;
+        }
         return null;
     };
 
-    // =========================================
-    // MAIN RENDER
-    // =========================================
-
     return (
-        <div className="single-user-layout">
-            {/* Top KPIs - Always at the very top */}
-            <div className="stats-row top-kpis">
+        <div className={styles.layout}>
+            <div className={`${dashStyles.statsRow} ${styles.topKpis}`}>
                 {topKPIs.map(kpi => (
                     <MiniStatCard
                         key={kpi.id}
@@ -377,11 +349,10 @@ const SingleUserStats = ({ messages, allMessages, author }) => {
                 ))}
             </div>
 
-            {/* Sections with interleaved content */}
             {sections.map(section => (
                 <div key={section.id} className="dashboard-section">
-                    <h2 className="section-title">{section.title}</h2>
-                    <div className="dashboard-grid">
+                    <h2 className={dashStyles.sectionTitle}>{section.title}</h2>
+                    <div className={dashStyles.grid}>
                         {renderInterleavedContent(section.charts, section.stats)}
                         {section.specialComponents?.map(renderSpecialComponent)}
                     </div>

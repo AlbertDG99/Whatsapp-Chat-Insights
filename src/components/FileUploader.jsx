@@ -5,11 +5,14 @@ import { UploadCloud, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import JSZip from 'jszip';
 import { parseChat } from '../utils/parser';
+import PrivacyBadge from './common/PrivacyBadge';
+import styles from './FileUploader.module.css';
 
 const FileUploader = ({ onDataLoaded, onLoading }) => {
   const [error, setError] = useState(null);
 
   const processZipFile = useCallback(async (file) => {
+    const loadingToast = toast.loading('Procesando archivo ZIP...');
     try {
       const zip = await JSZip.loadAsync(file);
       const txtFiles = [];
@@ -28,7 +31,7 @@ const FileUploader = ({ onDataLoaded, onLoading }) => {
         throw new Error("No se encontraron archivos .txt en el ZIP.");
       }
 
-
+      toast.loading(`Analizando ${txtFiles.length} archivo(s)...`, { id: loadingToast });
 
       let allMessages = [];
       const failedFiles = [];
@@ -36,7 +39,6 @@ const FileUploader = ({ onDataLoaded, onLoading }) => {
 
       for (const zipEntry of txtFiles) {
         try {
-          // Security: check size logic could go here, but async("string") is usually safe enough for reasonable files
           const content = await zipEntry.async("string");
           const messages = parseChat(content);
 
@@ -64,10 +66,12 @@ const FileUploader = ({ onDataLoaded, onLoading }) => {
         toast.error(`Fallo al cargar: ${failedList}${moreCount}`, { duration: 5000 });
       }
 
+      toast.dismiss(loadingToast);
       if (onDataLoaded) onDataLoaded(allMessages, file.name);
       toast.success(`Cargados exitosamente ${successCount} archivos (${allMessages.length} mensajes)`);
 
     } catch (err) {
+      toast.dismiss(loadingToast);
       console.error("Error ZIP:", err);
       const msg = err.message || "Fallo al procesar el archivo ZIP.";
       setError(msg);
@@ -86,6 +90,8 @@ const FileUploader = ({ onDataLoaded, onLoading }) => {
       let errMsg = "Error verificando archivo.";
       if (rejection.errors[0].code === 'file-invalid-type') {
         errMsg = "Tipo de archivo inválido. Por favor sube un .txt o .zip.";
+      } else if (rejection.errors[0].code === 'file-too-large') {
+        errMsg = "El archivo es demasiado grande. El tamaño máximo es 100 MB.";
       }
       setError(errMsg);
       toast.error(errMsg);
@@ -112,14 +118,25 @@ const FileUploader = ({ onDataLoaded, onLoading }) => {
       return;
     }
 
+    const isLargeFile = file.size > 5 * 1024 * 1024;
+    let loadingToast = null;
+    if (isLargeFile) {
+      loadingToast = toast.loading('Procesando archivo...');
+    }
+
     const reader = new FileReader();
-    reader.onabort = () => toast.error('Lectura de archivo abortada');
+    reader.onabort = () => {
+      if (loadingToast) toast.dismiss(loadingToast);
+      toast.error('Lectura de archivo abortada');
+    };
     reader.onerror = () => {
+      if (loadingToast) toast.dismiss(loadingToast);
       toast.error('Fallo al leer archivo');
       setError("Fallo al leer archivo.");
       if (onLoading) onLoading(false);
     };
     reader.onload = () => {
+      if (loadingToast) toast.dismiss(loadingToast);
       const binaryStr = reader.result;
       // Parse data
       try {
@@ -131,9 +148,14 @@ const FileUploader = ({ onDataLoaded, onLoading }) => {
         toast.success(`Analizados correctamente ${messages.length} mensajes`);
       } catch (err) {
         console.error("Error de análisis", err);
-        const errMsg = "No se pudo analizar el chat. Asegúrate de que es una exportación válida de WhatsApp.";
+        let errMsg;
+        if (err.message === 'No se encontraron mensajes') {
+          errMsg = 'No se detectaron mensajes. Verifica que el archivo es una exportación de WhatsApp con formato "fecha - autor: mensaje". Exporta "Sin archivos".';
+        } else {
+          errMsg = 'Error inesperado al analizar el archivo. Verifica que no está dañado.';
+        }
         setError(errMsg);
-        toast.error(errMsg);
+        toast.error(errMsg, { duration: 6000 });
       } finally {
         if (onLoading) onLoading(false);
       }
@@ -149,12 +171,13 @@ const FileUploader = ({ onDataLoaded, onLoading }) => {
       'application/x-zip-compressed': ['.zip']
     },
     maxFiles: 1,
-    multiple: false
+    multiple: false,
+    maxSize: 100 * 1024 * 1024
   });
 
   return (
-    <div className="uploader-container">
-      <div {...getRootProps()} className={`dropzone ${isDragActive ? 'active' : ''} ${error ? 'error' : ''}`}>
+    <div className={styles.container}>
+      <div {...getRootProps()} className={`${styles.dropzone} ${isDragActive ? styles.active : ''} ${error ? 'error' : ''}`}>
         <input {...getInputProps()} />
 
         {error ? (
@@ -177,23 +200,25 @@ const FileUploader = ({ onDataLoaded, onLoading }) => {
         {!error && <small className="hint">Acepta archivos .txt y .zip</small>}
       </div>
 
-      <div className="how-to-guide">
-        <h3 className="section-title-center">Cómo exportar tu chat</h3>
-        <div className="steps-grid">
-          <div className="step-card">
-            <div className="step-number">1</div>
+      <PrivacyBadge />
+
+      <div className={styles.howToGuide}>
+        <h3 className={styles.sectionTitle}>Cómo exportar tu chat</h3>
+        <div className={styles.stepsGrid}>
+          <div className={styles.stepCard}>
+            <div className={styles.stepNumber}>1</div>
             <p>Abre el chat y toca el nombre o menú</p>
           </div>
-          <div className="step-card">
-            <div className="step-number">2</div>
+          <div className={styles.stepCard}>
+            <div className={styles.stepNumber}>2</div>
             <p>Selecciona <b>Más</b> &gt; <b>Exportar Chat</b></p>
           </div>
-          <div className="step-card">
-            <div className="step-number">3</div>
+          <div className={styles.stepCard}>
+            <div className={styles.stepNumber}>3</div>
             <p>Elige la opción </p><p><b>"Sin Archivos"</b></p>
           </div>
-          <div className="step-card">
-            <div className="step-number">4</div>
+          <div className={styles.stepCard}>
+            <div className={styles.stepNumber}>4</div>
             <p>Guárdalo como archivo en tu dispositivo</p>
           </div>
         </div>

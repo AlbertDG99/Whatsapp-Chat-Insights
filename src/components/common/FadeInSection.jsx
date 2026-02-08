@@ -1,11 +1,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import styles from './FadeInSection.module.css';
+
+const prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const FadeInSection = ({ children, className = '', delay = '0s', ...props }) => {
-    const [isVisible, setIsVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState(prefersReducedMotion);
     const domRef = useRef();
 
     useEffect(() => {
+        if (prefersReducedMotion) return;
+
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -22,7 +28,7 @@ const FadeInSection = ({ children, className = '', delay = '0s', ...props }) => 
 
     return (
         <div
-            className={`fade-in-section ${isVisible ? 'is-visible' : ''} ${className}`}
+            className={`${styles.section} ${isVisible ? styles.visible : ''} ${className}`}
             ref={domRef}
             style={{ '--delay': delay }}
             {...props}

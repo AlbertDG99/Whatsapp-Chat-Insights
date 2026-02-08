@@ -42,8 +42,7 @@ export const DEFAULT_CHART_OPTIONS = {
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            position: 'bottom',
-            labels: { color: '#e9edef' }
+            display: false
         },
         title: { display: false },
     },

@@ -1,0 +1,131 @@
+@import './tokens.css';
+
+/* =========================================
+   Reset Layer
+   ========================================= */
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-weight: 600;
+    color: var(--color-text-main);
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+}
+
+/* =========================================
+   Base Layer
+   ========================================= */
+@layer base {
+  body {
+    margin: 0;
+    padding: 0;
+    min-width: 320px;
+    min-height: 100dvh;
+    min-height: 100vh;
+    background-color: var(--color-bg-base);
+    color: var(--color-text-main);
+    font-family: var(--font-family-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-image: radial-gradient(circle at 50% 0%, rgba(37, 211, 102, 0.15) 0%, transparent 75%);
+    background-attachment: fixed;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) transparent;
+  }
+
+  #root {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    min-height: 100dvh;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+  }
+
+  button:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+/* =========================================
+   Reduced Motion
+   ========================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  button:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* =========================================
+   View Transitions
+   ========================================= */
+::view-transition-old(root) {
+  animation: var(--duration-normal) var(--ease-out-expo) both fade-out;
+}
+
+::view-transition-new(root) {
+  animation: var(--duration-normal) var(--ease-out-expo) both fade-in;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+}
+
+/* =========================================
+   Utility classes
+   ========================================= */
+@layer utilities {
+  .subtitle-no-margin {
+    margin: 0 !important;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}

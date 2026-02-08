@@ -1,24 +1,22 @@
-import React from 'react';
+import React, { memo } from 'react';
 import FadeInSection from '../common/FadeInSection';
+import styles from './MiniStatCard.module.css';
 
-/**
- * MiniStatCard Component
- * Compact stat card with icon, value, and optional subtitle.
- * Used consistently across both multi-user and single-user dashboards.
- */
-const MiniStatCard = ({ icon: Icon, title, value, subtitle }) => {
+const MiniStatCard = memo(({ icon: Icon, title, value, subtitle }) => {
     return (
-        <FadeInSection className="col-span-1">
-            <div className="card mini-stat-card">
-                <div className="mini-stat-header">
-                    {Icon && <Icon size={18} className="mini-stat-icon" />}
-                    <span className="mini-stat-title">{title}</span>
+        <FadeInSection>
+            <div className={styles.card}>
+                <div className={styles.header}>
+                    {Icon && <Icon size={18} className={styles.icon} />}
+                    <span className={styles.title}>{title}</span>
                 </div>
-                <div className="mini-stat-value">{value}</div>
+                <div className={styles.value}>{value}</div>
                 {subtitle && <span className="mini-stat-subtitle">{subtitle}</span>}
             </div>
         </FadeInSection>
     );
-};
+});
+
+MiniStatCard.displayName = 'MiniStatCard';
 
 export default MiniStatCard;

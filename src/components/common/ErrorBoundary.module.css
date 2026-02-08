@@ -1,0 +1,40 @@
+@layer components {
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: var(--space-xl);
+    text-align: center;
+    color: var(--color-text-main);
+  }
+
+  .title {
+    margin-bottom: var(--space-md);
+    font-size: var(--font-size-xl);
+  }
+
+  .message {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-lg);
+    max-width: 400px;
+  }
+
+  .button {
+    padding: 0.6rem 1.5rem;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    min-height: 44px;
+    transition: background-color var(--duration-fast);
+
+    &:hover {
+      background: var(--color-primary-hover);
+    }
+  }
+}

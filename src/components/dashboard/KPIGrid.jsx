@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { MessageCircle, Calendar, Users } from 'lucide-react';
 import MiniStatCard from './MiniStatCard';
 import FadeInSection from '../common/FadeInSection';
+import styles from '../Dashboard.module.css';
 
-const KPIGrid = ({ stats }) => {
+const KPIGrid = memo(({ stats }) => {
     if (!stats) return null;
 
     return (
-        <div className="stats-row">
+        <div className={styles.statsRow}>
             <FadeInSection delay="0s">
                 <MiniStatCard
                     icon={MessageCircle}
@@ -31,6 +32,8 @@ const KPIGrid = ({ stats }) => {
             </FadeInSection>
         </div>
     );
-};
+});
+
+KPIGrid.displayName = 'KPIGrid';
 
 export default KPIGrid;

@@ -1,0 +1,55 @@
+@layer components {
+  .card {
+    width: 100%;
+    container-type: inline-size;
+    background: var(--color-bg-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xs);
+    width: 100%;
+  }
+
+  .icon {
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .title {
+    font-size: clamp(0.75rem, 4cqi, 1rem);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .value {
+    font-size: clamp(1.5rem, 25cqi, 3rem);
+    font-weight: 700;
+    margin-top: 0;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: linear-gradient(135deg, var(--color-text-inverse) 0%, var(--color-text-muted) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Mobile */
+  @media (width <= 768px) {
+    .card {
+      align-items: center;
+    }
+  }
+}
