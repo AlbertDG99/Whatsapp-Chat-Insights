@@ -1,0 +1,101 @@
+@layer components {
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xl);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .dropzone {
+    border: 2px dashed var(--color-text-muted);
+    border-radius: var(--radius-md);
+    padding: var(--space-3xl) var(--space-xl);
+    width: 100%;
+    cursor: pointer;
+    background-color: var(--color-bg-subtle);
+    transition: border-color var(--duration-normal), background-color var(--duration-normal), transform var(--duration-normal);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+
+    &:hover,
+    &.active {
+      border-color: var(--color-primary);
+      background-color: var(--color-primary-transparent);
+      transform: translateY(-2px);
+    }
+  }
+
+  .howToGuide {
+    width: 100%;
+    text-align: center;
+    margin-top: var(--space-xl);
+  }
+
+  .sectionTitle {
+    text-align: center;
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--space-2xl);
+    background: linear-gradient(135deg, var(--color-text-main) 0%, var(--color-text-muted) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stepsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+  }
+
+  .stepCard {
+    background-color: var(--color-bg-surface);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-subtle);
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform var(--duration-fast), border-color var(--duration-fast);
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: var(--color-primary);
+    }
+  }
+
+  .stepNumber {
+    width: 32px;
+    height: 32px;
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: var(--space-md);
+  }
+
+  /* Mobile */
+  @media (width <= 768px) {
+    .stepsGrid {
+      grid-template-columns: 1fr;
+      padding-left: var(--space-md);
+      padding-right: var(--space-md);
+    }
+
+    .stepCard {
+      flex-direction: row;
+      text-align: left;
+      gap: var(--space-md);
+    }
+
+    .stepNumber {
+      margin-bottom: 0;
+    }
+  }
+}

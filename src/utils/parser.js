@@ -46,6 +46,7 @@ export const parseChat = (text) => {
         messages.push(currentMessage);
     }
 
+    // eslint-disable-next-line no-console
     console.log(`Parsed ${messages.length} messages.`);
     return messages;
 };
